@@ -1,0 +1,26 @@
+{
+  "name": "smart-friendly-boarding-system",
+  "version": "1.1.0",
+  "description": "智慧友善搭乘系統 - 手機 App + TDX 即時看板",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "android:build": "npx cap sync android && npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/core": "^7.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.2.0"
+  },
+  "capacitor": {
+    "platforms": ["android"]
+  }
+}

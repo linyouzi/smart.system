@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>智慧友善搭乘系統 | Smart Friendly Boarding System</title>
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#21295c" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="智慧搭乘" />
+<link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+
+<div id="fileProtocolBanner" hidden style="margin:0;padding:20px 24px;background:#fdeee0;color:#8a2c0a;font-weight:700;text-align:center;border-bottom:3px solid #f4a300;">
+  ⚠️ 請勿直接雙擊 index.html 開啟。<br/>
+  請在 PowerShell 執行：<code style="background:#fff;padding:2px 6px;border-radius:4px;">cd tdx-app</code> → <code style="background:#fff;padding:2px 6px;border-radius:4px;">node server.js</code><br/>
+  再於瀏覽器開啟 <a href="http://localhost:3000" style="color:#065a82;">http://localhost:3000</a>
+</div>
+<script>
+  if (location.protocol === "file:") {
+    document.getElementById("fileProtocolBanner").hidden = false;
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelector("main").style.display = "none";
+      document.querySelector("footer").style.display = "none";
+    });
+  }
+</script>
+
+<header>
+  <div class="lang-switch">
+    <button type="button" id="langZh" data-i18n="langZh">中文</button>
+    <button type="button" id="langEn" data-i18n="langEn">English</button>
+    <button type="button" id="langTh" data-i18n="langTh">ไทย</button>
+    <button type="button" id="langVi" data-i18n="langVi">Tiếng Việt</button>
+  </div>
+  <div class="icon-circle">🚆</div>
+  <h1 data-i18n="title">智慧友善搭乘系統</h1>
+  <p data-i18n="subtitle">Smart Friendly Boarding System — 即時月台導引 Demo（串接 TDX 運輸資料流通服務）</p>
+</header>
+
+<main>
+
+  <section class="panel">
+    <details class="server-panel" id="serverPanel">
+      <summary data-i18n="serverSettings">伺服器設定（手機 App 必填）</summary>
+      <p class="field-hint" data-i18n="serverHint">App 需連到執行 node server.js 的電腦，例如 http://192.168.0.10:3000（同一 Wi‑Fi）</p>
+      <div class="row">
+        <input type="url" id="apiBaseInput" class="server-input" placeholder="http://192.168.0.10:3000" />
+        <button type="button" class="secondary" id="saveServerBtn" data-i18n="serverSave">儲存</button>
+        <button type="button" class="secondary" id="testServerBtn" data-i18n="serverTest">測試連線</button>
+      </div>
+    </details>
+
+    <h2><span class="dot"></span><span data-i18n="selectStation">選擇起站</span></h2>
+
+    <div class="field-label" data-i18n="selectStation">選擇起站</div>
+    <div class="row">
+      <div class="combobox">
+        <input type="text" id="originInput" autocomplete="off" data-i18n-placeholder="stationPlaceholder" placeholder="輸入站名，如：台北、北車" />
+        <ul id="originSuggestions" class="suggestions hidden"></ul>
+        <input type="hidden" id="originId" />
+      </div>
+    </div>
+
+    <div class="field-label" data-i18n="selectDestination">我要去的站（只顯示有停靠的班次）</div>
+    <p class="field-hint" data-i18n="destHint">依 TDX 當日時刻表，篩選從起站出發且會停靠此站的列車</p>
+    <div class="row">
+      <div class="combobox">
+        <input type="text" id="destInput" autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入目的地，如：台北、台中" />
+        <ul id="destSuggestions" class="suggestions hidden"></ul>
+        <input type="hidden" id="destId" />
+      </div>
+      <button class="primary" id="searchBtn" data-i18n="search">查詢即時看板</button>
+      <button class="secondary" id="favBtn" data-i18n="addFavorite">加入常用</button>
+    </div>
+
+    <div class="field-label" data-i18n="directionLabel">行車方向</div>
+    <div class="toggle-group" id="directionGroup">
+      <button type="button" class="toggle-btn active" id="dirAll" data-i18n="dirAll">全部</button>
+      <button type="button" class="toggle-btn" id="dirNorth" data-i18n="dirNorth">北上</button>
+      <button type="button" class="toggle-btn" id="dirSouth" data-i18n="dirSouth">南下</button>
+    </div>
+
+    <div class="app-actions row">
+      <a class="secondary download-link" href="/download.html" data-i18n="downloadApp">📥 下載 App</a>
+      <button type="button" class="secondary hidden" id="installBtn" data-i18n="installApp">安裝 App</button>
+    </div>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="modeNormal" data-i18n="modeNormal">一般模式</button>
+      <button class="toggle-btn" id="modeLarge" data-i18n="modeLarge">長者大字模式</button>
+      <button class="toggle-btn" id="modeTts" data-i18n="modeTts">語音播報</button>
+      <button class="toggle-btn" id="scanBtn" data-i18n="scanQr">掃碼定位</button>
+    </div>
+
+    <div class="a11y-row">
+      <label><input type="checkbox" id="wheelchairCheck" /> <span data-i18n="wheelchair">輪椅／避開樓梯提示</span></label>
+    </div>
+    <div class="a11y-hint hidden" id="wheelchairHint" data-i18n="wheelchairHint">
+      ♿ 建議從無階梯入口進站，優先使用電梯至月台層（示意文字，非即時路徑演算）
+    </div>
+
+    <div id="qrContainer" class="hidden"></div>
+    <div class="qr-hint" data-i18n="qrHint">掃描車站 QR Code（格式：TRA:車站ID:區域）</div>
+
+    <div class="quick-links" id="quickLinks"></div>
+    <div id="status" data-i18n="statusConnecting">正在連線後端伺服器…</div>
+  </section>
+
+  <section class="panel" id="resultPanel">
+    <h2><span class="dot"></span><span id="resultTitle" data-i18n="liveboardTitle">即時到離站看板</span></h2>
+    <div id="results">
+      <div class="empty-state" data-i18n="emptyPrompt">請先選擇車站並查詢，即可看到真實的 TDX 即時班次與月台資訊。</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span data-i18n="footer">資料來源：交通部 TDX 運輸資料流通服務平台｜車廂/車門相對位置為示意圖，非 TDX 實測資料</span><br/>
+  <span data-i18n="footerCredit">HACKRAIL 鐵客松提案 — 中原大學資訊管理學系</span>
+</footer>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

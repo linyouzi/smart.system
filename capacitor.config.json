@@ -1,0 +1,12 @@
+{
+  "appId": "tw.edu.cycu.sfbs",
+  "appName": "智慧搭乘",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

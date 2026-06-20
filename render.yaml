@@ -1,0 +1,22 @@
+# Render Blueprint — 智慧友善搭乘系統
+# 用法：Render Dashboard → New → Blueprint → 連接 GitHub repo
+# 或手動建立 Web Service 並參考 RENDER_DEPLOY.md
+
+services:
+  - type: web
+    name: sfbs
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TDX_CLIENT_ID
+        sync: false
+      - key: TDX_CLIENT_SECRET
+        sync: false
+      # 選填：部署完成後可填入 https://你的服務名.onrender.com
+      - key: PUBLIC_SERVER_URL
+        sync: false

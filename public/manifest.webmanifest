@@ -1,0 +1,19 @@
+{
+  "name": "智慧友善搭乘系統",
+  "short_name": "智慧搭乘",
+  "description": "台鐵即時月台導引（TDX）",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#21295c",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

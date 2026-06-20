@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">智慧搭乘</string>
+    <string name="title_activity_main">智慧搭乘</string>
+    <string name="package_name">tw.edu.cycu.sfbs</string>
+    <string name="custom_url_scheme">tw.edu.cycu.sfbs</string>
+</resources>

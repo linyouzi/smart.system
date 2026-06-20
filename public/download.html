@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>下載智慧搭乘 App</title>
+<link rel="stylesheet" href="/css/app.css" />
+<style>
+  .download-hero {
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 32px 20px 48px;
+  }
+  .download-hero .icon-circle { margin: 0 auto 16px; width: 72px; height: 72px; font-size: 32px; }
+  .download-hero h1 { font-size: 24px; color: var(--navy); margin: 0 0 8px; }
+  .download-hero .sub { color: var(--gray); font-size: 14px; margin-bottom: 24px; }
+  .dl-btn {
+    display: inline-block;
+    background: var(--teal);
+    color: #fff;
+    font-weight: 800;
+    font-size: 18px;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    margin: 8px 0;
+    min-width: 240px;
+  }
+  .dl-btn:hover { background: var(--deepblue); }
+  .dl-btn.disabled { background: #aaa; pointer-events: none; }
+  .dl-meta { font-size: 12px; color: var(--gray); margin-top: 8px; }
+  .steps {
+    text-align: left;
+    background: var(--ice);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 24px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .steps h2 { font-size: 16px; margin: 0 0 12px; color: var(--navy); }
+  .steps ol { margin: 0; padding-left: 20px; }
+  .qr-box { margin-top: 20px; }
+  .qr-box img { border-radius: 8px; border: 1px solid #c7dce3; }
+  .alt-link { display: block; margin-top: 16px; color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="download-hero">
+  <div class="icon-circle">🚆</div>
+  <h1>智慧友善搭乘 App</h1>
+  <p class="sub">Android 版免費下載 · 台鐵即時月台導引</p>
+
+  <a id="apkBtn" class="dl-btn disabled" href="#">APK 準備中…</a>
+  <p class="dl-meta" id="apkMeta"></p>
+
+  <div class="qr-box hidden" id="qrBox">
+    <p style="font-size:13px;color:var(--gray);">手機掃描下載</p>
+    <img id="qrImg" width="200" height="200" alt="QR Code" />
+  </div>
+
+  <a class="alt-link" href="/">← 改用網頁版</a>
+
+  <div class="steps">
+    <h2>Android 安裝步驟</h2>
+    <ol>
+      <li>點上方按鈕下載 APK</li>
+      <li>若提示「未知來源」，到設定允許瀏覽器安裝 App</li>
+      <li>開啟 App → <strong>伺服器設定</strong> → 填入後端網址後儲存</li>
+      <li id="serverHint">若與 Demo 主機同一 Wi‑Fi，可填 <code id="lanUrl">http://你的電腦IP:3000</code></li>
+    </ol>
+    <p style="margin:12px 0 0;font-size:12px;color:var(--gray);" id="deployNote"></p>
+  </div>
+</div>
+<script>
+(async () => {
+  const btn = document.getElementById("apkBtn");
+  const meta = document.getElementById("apkMeta");
+  const qrBox = document.getElementById("qrBox");
+  const qrImg = document.getElementById("qrImg");
+  const deployNote = document.getElementById("deployNote");
+
+  const origin = location.origin;
+  document.getElementById("lanUrl").textContent = origin.replace(/localhost/i, "你的電腦IP");
+
+  try {
+    const info = await fetch("/api/app/info").then((r) => r.json());
+    if (info.publicServerUrl) {
+      deployNote.textContent =
+        "此站已設定公開後端：" + info.publicServerUrl + "（App 首次開啟會自動連線）";
+    } else {
+      deployNote.textContent =
+        "正式開放給大眾使用前，請將 server 部署到 HTTPS 網域，並在 .env 設定 PUBLIC_SERVER_URL。";
+    }
+
+    if (info.apkAvailable && info.apkUrl) {
+      const fullUrl = origin + info.apkUrl;
+      btn.href = info.apkUrl;
+      btn.download = "smart-boarding.apk";
+      btn.classList.remove("disabled");
+      btn.textContent = "⬇ 下載 Android APK（v" + info.version + "）";
+      const mb = info.apkSize ? (info.apkSize / 1024 / 1024).toFixed(1) + " MB" : "";
+      meta.textContent = mb ? "檔案大小約 " + mb : "";
+      qrBox.classList.remove("hidden");
+      qrImg.src =
+        "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+        encodeURIComponent(fullUrl);
+    } else {
+      btn.textContent = "APK 尚未建置";
+      meta.textContent = "請在電腦執行 build-apk.bat 產生安裝檔";
+    }
+  } catch (e) {
+    btn.textContent = "無法取得下載資訊";
+    meta.textContent = e.message;
+  }
+})();
+</script>
+</body>
+</html>
