@@ -102,6 +102,7 @@ main {
   border-radius: 14px;
   padding: 20px;
   margin-bottom: 20px;
+  overflow: visible;
 }
 
 .panel h2 {
@@ -236,7 +237,7 @@ input, button {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 100;
   list-style: none;
   margin: 4px 0 0;
   padding: 0;

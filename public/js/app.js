@@ -7,6 +7,7 @@ import {
   getRecents,
   getFavorites,
   toggleFavorite,
+  prepareStations,
 } from "./stations.js";
 import {
   isTtsEnabled,
@@ -302,7 +303,12 @@ async function init() {
     }
 
     setStatus("statusLoadingStations");
-    stations = await apiFetch("/api/stations").then((r) => r.json());
+    let stationData = await apiFetch("/api/stations").then((r) => r.json());
+    if (!Array.isArray(stationData) || stationData.length === 0) {
+      stationData = await fetch("/data/tra-stations.json").then((r) => r.json());
+      stationData = Array.isArray(stationData) ? stationData : stationData.stations || [];
+    }
+    stations = prepareStations(stationData);
 
     const commonIds = ["1000", "1010", "1020", "3300", "4220", "5020", "6020", "7000"];
     stations.sort((a, b) => {
@@ -312,12 +318,18 @@ async function init() {
       return (a.name || "").localeCompare(b.name || "", "zh-Hant");
     });
 
+    const browseContext = () => ({
+      recents: getRecents(),
+      favorites: getFavorites(),
+    });
+
     originCombo = createCombobox({
       inputEl: document.getElementById("originInput"),
       listEl: document.getElementById("originSuggestions"),
       hiddenEl: document.getElementById("originId"),
       stations,
       localeGetter: () => locale,
+      getBrowseContext: browseContext,
     });
 
     destCombo = createCombobox({
@@ -326,6 +338,7 @@ async function init() {
       hiddenEl: document.getElementById("destId"),
       stations,
       localeGetter: () => locale,
+      getBrowseContext: browseContext,
     });
 
     setStatus("statusStationsLoaded", { n: stations.length });

@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node server.js",
+    "verify:stations": "node scripts/verify-station-search.js",
     "cap:sync": "npx cap sync",
     "cap:open:android": "npx cap open android",
     "android:build": "npx cap sync android && npx cap open android"

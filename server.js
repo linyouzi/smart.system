@@ -48,6 +48,34 @@ const API_BASE = "https://tdx.transportdata.tw/api/basic";
 let cachedToken = null;
 let tokenExpiresAt = 0;
 
+const tdxResponseCache = new Map();
+const TDX_MIN_INTERVAL_MS = 250;
+let lastTdxRequestAt = 0;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function tdxCacheTtl(apiPath) {
+  if (apiPath.includes("/LiveBoard/")) return 45_000;
+  if (apiPath.includes("/DailyTrainTimetable/")) return 3_600_000;
+  if (apiPath.includes("/Station")) return 3_600_000;
+  return 0;
+}
+
+function getTdxCacheEntry(apiPath) {
+  const entry = tdxResponseCache.get(apiPath);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) return null;
+  return entry;
+}
+
+function setTdxCacheEntry(apiPath, data) {
+  const ttl = tdxCacheTtl(apiPath);
+  if (!ttl) return;
+  tdxResponseCache.set(apiPath, { data, expiresAt: Date.now() + ttl });
+}
+
 async function getAccessToken() {
   const now = Date.now();
   if (cachedToken && now < tokenExpiresAt - 60_000) {
@@ -84,18 +112,54 @@ async function getAccessToken() {
 }
 
 async function callTdx(apiPath) {
-  const token = await getAccessToken();
-  const res = await fetch(`${API_BASE}${apiPath}`, {
-    headers: {
-      authorization: `Bearer ${token}`,
-      "Accept-Encoding": "gzip",
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`TDX API 錯誤 (${res.status}): ${text}`);
+  const fresh = getTdxCacheEntry(apiPath);
+  if (fresh) return fresh.data;
+
+  const stale = tdxResponseCache.get(apiPath) || null;
+  const maxAttempts = 3;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const waitMs = TDX_MIN_INTERVAL_MS - (Date.now() - lastTdxRequestAt);
+    if (waitMs > 0) await sleep(waitMs);
+
+    lastTdxRequestAt = Date.now();
+    const token = await getAccessToken();
+    const res = await fetch(`${API_BASE}${apiPath}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Accept-Encoding": "gzip",
+      },
+    });
+
+    if (res.status === 429) {
+      if (stale) {
+        console.warn(`TDX 429，使用快取資料：${apiPath}`);
+        return stale.data;
+      }
+      const retryAfter = Number(res.headers.get("retry-after")) || 0;
+      const backoffMs = retryAfter > 0 ? retryAfter * 1000 : (attempt + 1) * 2000;
+      if (attempt < maxAttempts - 1) {
+        console.warn(`TDX 429，${backoffMs}ms 後重試 (${attempt + 1}/${maxAttempts})`);
+        await sleep(backoffMs);
+        continue;
+      }
+      throw new Error(
+        "TDX API 請求過於頻繁（429），請稍候 1～2 分鐘再試。若持續發生，可能是免費方案配額已用完。"
+      );
+    }
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`TDX API 錯誤 (${res.status}): ${text}`);
+    }
+
+    const data = await res.json();
+    setTdxCacheEntry(apiPath, data);
+    return data;
   }
-  return res.json();
+
+  if (stale) return stale.data;
+  throw new Error("TDX API 暫時無法連線，請稍後再試");
 }
 
 function unwrapTdxList(data) {
@@ -200,16 +264,56 @@ function extractTrainNosFromTimetable(data) {
 
 let stationsCache = null;
 let stationsCacheAt = 0;
+const STATIONS_FALLBACK_PATH = path.join(__dirname, "public", "data", "tra-stations.json");
 
-async function getStationNameZh(stationId) {
+function simplifyStationRow(s) {
+  return {
+    stationId: String(s.StationID || s.stationId),
+    name: s.StationName?.Zh_tw || s.name,
+    nameEn: s.StationName?.En || s.nameEn,
+    lat: s.StationPosition?.PositionLat ?? s.lat ?? null,
+    lon: s.StationPosition?.PositionLon ?? s.lon ?? null,
+  };
+}
+
+function loadFallbackStations() {
+  if (!fs.existsSync(STATIONS_FALLBACK_PATH)) return [];
+  const payload = JSON.parse(fs.readFileSync(STATIONS_FALLBACK_PATH, "utf-8"));
+  const list = Array.isArray(payload) ? payload : payload.stations || [];
+  return list.map(simplifyStationRow);
+}
+
+async function loadAllStations() {
   const now = Date.now();
-  if (!stationsCache || now - stationsCacheAt > 3_600_000) {
+  if (stationsCache && now - stationsCacheAt < 3_600_000) {
+    return stationsCache.map(simplifyStationRow);
+  }
+
+  try {
     const raw = await callTdx(
-      "/v3/Rail/TRA/Station?$select=StationID,StationName&$format=JSON"
+      "/v3/Rail/TRA/Station?$select=StationID,StationName,StationPosition&$format=JSON"
     );
     stationsCache = unwrapTdxList(raw);
     stationsCacheAt = now;
+    return stationsCache.map(simplifyStationRow);
+  } catch (err) {
+    console.error("TDX stations fetch failed, using fallback:", err.message);
+    const fallback = loadFallbackStations();
+    if (fallback.length) {
+      stationsCache = fallback.map((s) => ({
+        StationID: s.stationId,
+        StationName: { Zh_tw: s.name, En: s.nameEn },
+        StationPosition: { PositionLat: s.lat, PositionLon: s.lon },
+      }));
+      stationsCacheAt = now;
+      return fallback;
+    }
+    throw err;
   }
+}
+
+async function getStationNameZh(stationId) {
+  await loadAllStations();
   const s = stationsCache.find((x) => String(x.StationID) === String(stationId));
   return s?.StationName?.Zh_tw || "";
 }
@@ -224,8 +328,7 @@ async function fetchOdTrainNos(originId, destId) {
     try {
       const raw = await callTdx(apiPath);
       const list = Array.isArray(raw) ? raw : unwrapTdxList(raw);
-      const nos = extractTrainNosFromTimetable(list);
-      if (nos.size) return nos;
+      return extractTrainNosFromTimetable(list);
     } catch (_) {
       /* try next API version */
     }
@@ -308,17 +411,7 @@ function serveStatic(req, res) {
 
 async function handleStations(req, res) {
   try {
-    const raw = await callTdx(
-      "/v3/Rail/TRA/Station?$select=StationID,StationName,StationPosition&$format=JSON"
-    );
-    const data = unwrapTdxList(raw);
-    const simplified = data.map((s) => ({
-      stationId: s.StationID,
-      name: s.StationName?.Zh_tw,
-      nameEn: s.StationName?.En,
-      lat: s.StationPosition?.PositionLat,
-      lon: s.StationPosition?.PositionLon,
-    }));
+    const simplified = await loadAllStations();
     sendJson(res, 200, simplified);
   } catch (err) {
     console.error(err);

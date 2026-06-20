@@ -12,6 +12,12 @@ const ALIASES = {
   板橋站: "板橋",
 };
 
+const COMMON_STATION_IDS = [
+  "1000", "1010", "1020", "3300", "4220", "5020", "6020", "7000", "2170",
+];
+
+const SEARCH_LIMIT = 30;
+
 function normalize(s) {
   return (s || "")
     .replace(/\s/g, "")
@@ -19,33 +25,135 @@ function normalize(s) {
     .toLowerCase();
 }
 
-function scoreStation(station, query, locale) {
-  const q = normalize(query);
-  if (!q) return 0;
-
-  const name = normalize(station.name);
-  const nameEn = normalize(station.nameEn);
-
-  if (name === q || nameEn === q) return 100;
-  if (name.startsWith(q) || nameEn.startsWith(q)) return 80;
-  if (name.includes(q) || nameEn.includes(q)) return 60;
-
-  for (const [alias, target] of Object.entries(ALIASES)) {
-    if (q.includes(normalize(alias)) && name.includes(normalize(target))) {
-      return 50;
-    }
-  }
-  return 0;
+/** 去掉使用者常多加的「車站／站」後綴，方便匹配 TDX 站名（如 通霄） */
+function stripStationSuffix(text) {
+  let s = normalize(text);
+  s = s.replace(/火車站$/, "");
+  s = s.replace(/車站$/, "");
+  s = s.replace(/站$/, "");
+  return s;
 }
 
-export function filterStations(stations, query, locale, limit = 8) {
-  if (!query.trim()) return [];
+function addSearchTerm(set, value) {
+  const n = normalize(value);
+  if (n) set.add(n);
+  const stripped = stripStationSuffix(value);
+  if (stripped) set.add(stripped);
+}
+
+function buildSearchTerms(station) {
+  const terms = new Set();
+  addSearchTerm(terms, station.name);
+  addSearchTerm(terms, station.nameEn);
+  if (station.stationId) terms.add(String(station.stationId));
+  return terms;
+}
+
+/** 建立搜尋索引，確保台鐵每一站都能被快速比對 */
+export function prepareStations(stations) {
+  return (stations || []).map((station) => ({
+    ...station,
+    stationId: String(station.stationId),
+    searchTerms: buildSearchTerms(station),
+  }));
+}
+
+function queryVariants(query) {
+  const base = normalize(query);
+  const stripped = stripStationSuffix(query);
+  const variants = new Set([base]);
+  if (stripped) variants.add(stripped);
+
+  if (/^\d{3,4}$/.test(stripped || base)) {
+    variants.add(stripped || base);
+  }
+
+  for (const [alias, target] of Object.entries(ALIASES)) {
+    const a = normalize(alias);
+    if (base.includes(a) || stripped.includes(a)) {
+      variants.add(normalize(target));
+    }
+  }
+  return [...variants];
+}
+
+function scoreStation(station, query) {
+  const names = [normalize(station.name), normalize(station.nameEn)].filter(Boolean);
+  const id = String(station.stationId || "");
+  let best = 0;
+
+  for (const q of queryVariants(query)) {
+    if (!q) continue;
+
+    if (id && id === q) best = Math.max(best, 100);
+
+    for (const name of names) {
+      if (name === q) best = Math.max(best, 100);
+      else if (name.startsWith(q)) best = Math.max(best, 90);
+      else if (q.startsWith(name) && name.length >= 2) best = Math.max(best, 85);
+      else if (nameEnStarts(name, q)) best = Math.max(best, 88);
+      else if (name.includes(q)) best = Math.max(best, 70);
+      else if (q.includes(name) && name.length >= 2) best = Math.max(best, 65);
+    }
+
+    if (station.searchTerms?.has(q)) best = Math.max(best, 95);
+
+    for (const [alias, target] of Object.entries(ALIASES)) {
+      if (q.includes(normalize(alias)) && names.some((n) => n.includes(normalize(target)))) {
+        best = Math.max(best, 50);
+      }
+    }
+  }
+  return best;
+}
+
+function nameEnStarts(name, q) {
+  if (!name || !q) return false;
+  const parts = name.split(/[\s-]+/);
+  return parts.some((p) => p.startsWith(q));
+}
+
+export function filterStations(stations, query, locale, limit = SEARCH_LIMIT) {
+  const trimmed = (query || "").trim();
+  if (!trimmed) return [];
+
   return stations
-    .map((s) => ({ s, score: scoreStation(s, query, locale) }))
+    .map((s) => ({ s, score: scoreStation(s, trimmed) }))
     .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      const aExact = normalize(a.s.name) === stripStationSuffix(trimmed) ? 1 : 0;
+      const bExact = normalize(b.s.name) === stripStationSuffix(trimmed) ? 1 : 0;
+      if (bExact !== aExact) return bExact - aExact;
+      return (a.s.name || "").localeCompare(b.s.name || "", "zh-Hant");
+    })
     .slice(0, limit)
     .map((x) => x.s);
+}
+
+export function getBrowseStations(stations, { recents = [], favorites = [] } = {}) {
+  const seen = new Set();
+  const picks = [];
+
+  function add(station) {
+    if (!station || seen.has(station.stationId)) return;
+    seen.add(station.stationId);
+    picks.push(station);
+  }
+
+  favorites.forEach((id) => add(stations.find((s) => s.stationId === String(id))));
+  recents.forEach((id) => add(stations.find((s) => s.stationId === String(id))));
+  COMMON_STATION_IDS.forEach((id) => add(stations.find((s) => s.stationId === id)));
+
+  const sorted = [...stations].sort((a, b) =>
+    (a.name || "").localeCompare(b.name || "", "zh-Hant")
+  );
+  sorted.forEach((s) => {
+    if (picks.length >= SEARCH_LIMIT) return;
+    add(s);
+  });
+
+  return picks.slice(0, SEARCH_LIMIT);
 }
 
 export function stationLabel(station, locale) {
@@ -57,23 +165,35 @@ function findStationByInput(stations, text, locale) {
   const trimmed = (text || "").trim();
   if (!trimmed) return null;
 
-  const q = normalize(trimmed);
-  const exact = stations.find(
-    (s) => normalize(s.name) === q || normalize(s.nameEn) === q
-  );
-  if (exact) return exact;
+  for (const q of queryVariants(trimmed)) {
+    const exact = stations.find(
+      (s) =>
+        normalize(s.name) === q ||
+        normalize(s.nameEn) === q ||
+        String(s.stationId) === q
+    );
+    if (exact) return exact;
+  }
 
-  const matches = filterStations(stations, trimmed, locale, 5);
+  const matches = filterStations(stations, trimmed, locale, 8);
   if (matches.length === 1) return matches[0];
   if (matches.length > 1) {
-    const topScore = scoreStation(matches[0], trimmed, locale);
-    const secondScore = scoreStation(matches[1], trimmed, locale);
-    if (topScore >= 80 && topScore > secondScore) return matches[0];
+    const topScore = scoreStation(matches[0], trimmed);
+    const secondScore = scoreStation(matches[1], trimmed);
+    if (topScore >= 85 && topScore > secondScore) return matches[0];
   }
   return null;
 }
 
-export function createCombobox({ inputEl, listEl, hiddenEl, stations, localeGetter, onSelect }) {
+export function createCombobox({
+  inputEl,
+  listEl,
+  hiddenEl,
+  stations,
+  localeGetter,
+  onSelect,
+  getBrowseContext,
+}) {
   let activeIdx = -1;
   let visible = [];
 
@@ -84,6 +204,15 @@ export function createCombobox({ inputEl, listEl, hiddenEl, stations, localeGett
     const station = findStationByInput(stations, inputEl.value, localeGetter());
     if (station) pick(station);
     return station;
+  }
+
+  function bindPick(li, station) {
+    const handler = (e) => {
+      e.preventDefault();
+      pick(station);
+    };
+    li.addEventListener("mousedown", handler);
+    li.addEventListener("touchstart", handler, { passive: false });
   }
 
   function renderList(items) {
@@ -98,10 +227,7 @@ export function createCombobox({ inputEl, listEl, hiddenEl, stations, localeGett
       const li = document.createElement("li");
       li.textContent = stationLabel(s, localeGetter());
       li.dataset.idx = String(i);
-      li.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        pick(s);
-      });
+      bindPick(li, s);
       listEl.appendChild(li);
     });
     listEl.classList.remove("hidden");
@@ -114,12 +240,25 @@ export function createCombobox({ inputEl, listEl, hiddenEl, stations, localeGett
     onSelect?.(station);
   }
 
-  inputEl.addEventListener("input", () => {
+  function updateSuggestions() {
     hiddenEl.value = "";
-    renderList(filterStations(stations, inputEl.value, localeGetter()));
-  });
+    const q = inputEl.value.trim();
+    if (q) {
+      renderList(filterStations(stations, q, localeGetter()));
+    } else if (getBrowseContext) {
+      renderList(getBrowseStations(stations, getBrowseContext()));
+    } else {
+      renderList([]);
+    }
+  }
+
+  inputEl.addEventListener("input", updateSuggestions);
+  inputEl.addEventListener("focus", updateSuggestions);
 
   inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" && listEl.classList.contains("hidden")) {
+      updateSuggestions();
+    }
     if (listEl.classList.contains("hidden")) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -143,7 +282,7 @@ export function createCombobox({ inputEl, listEl, hiddenEl, stations, localeGett
     setTimeout(() => {
       listEl.classList.add("hidden");
       if (inputEl.value.trim() && !hiddenEl.value) resolveInput();
-    }, 150);
+    }, 300);
   });
 
   function highlight() {
@@ -154,7 +293,7 @@ export function createCombobox({ inputEl, listEl, hiddenEl, stations, localeGett
 
   return {
     pickById(stationId) {
-      const s = stations.find((x) => x.stationId === stationId);
+      const s = stations.find((x) => x.stationId === String(stationId));
       if (s) pick(s);
     },
     resolveInput,

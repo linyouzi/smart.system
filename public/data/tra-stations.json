@@ -1,0 +1,1722 @@
+{
+  "version": 1,
+  "count": 245,
+  "updated": "2026-06-20",
+  "stations": [
+    {
+      "stationId": "0900",
+      "name": "基隆",
+      "nameEn": "Keelung",
+      "lat": 25.13191,
+      "lon": 121.73837
+    },
+    {
+      "stationId": "0910",
+      "name": "三坑",
+      "nameEn": "Sankeng",
+      "lat": 25.12305,
+      "lon": 121.74202
+    },
+    {
+      "stationId": "0920",
+      "name": "八堵",
+      "nameEn": "Badu",
+      "lat": 25.10838,
+      "lon": 121.72904
+    },
+    {
+      "stationId": "0930",
+      "name": "七堵",
+      "nameEn": "Qidu",
+      "lat": 25.09294,
+      "lon": 121.71415
+    },
+    {
+      "stationId": "0940",
+      "name": "百福",
+      "nameEn": "Baifu",
+      "lat": 25.07795,
+      "lon": 121.69379
+    },
+    {
+      "stationId": "0950",
+      "name": "五堵",
+      "nameEn": "Wudu",
+      "lat": 25.07799,
+      "lon": 121.66758
+    },
+    {
+      "stationId": "0960",
+      "name": "汐止",
+      "nameEn": "Xizhi",
+      "lat": 25.0679,
+      "lon": 121.66113
+    },
+    {
+      "stationId": "0970",
+      "name": "汐科",
+      "nameEn": "Xike",
+      "lat": 25.06406,
+      "lon": 121.65233
+    },
+    {
+      "stationId": "0980",
+      "name": "南港",
+      "nameEn": "Nangang",
+      "lat": 25.05348,
+      "lon": 121.60706
+    },
+    {
+      "stationId": "0990",
+      "name": "松山",
+      "nameEn": "Songshan",
+      "lat": 25.04927,
+      "lon": 121.57906
+    },
+    {
+      "stationId": "1000",
+      "name": "臺北",
+      "nameEn": "Taipei",
+      "lat": 25.04775,
+      "lon": 121.51711
+    },
+    {
+      "stationId": "1001",
+      "name": "臺北-環島",
+      "nameEn": "Taipei Surround Island",
+      "lat": 25.04774,
+      "lon": 121.51711
+    },
+    {
+      "stationId": "1010",
+      "name": "萬華",
+      "nameEn": "Wanhua",
+      "lat": 25.03339,
+      "lon": 121.49996
+    },
+    {
+      "stationId": "1020",
+      "name": "板橋",
+      "nameEn": "Banqiao",
+      "lat": 25.01434,
+      "lon": 121.46377
+    },
+    {
+      "stationId": "1030",
+      "name": "浮洲",
+      "nameEn": "Fuzhou",
+      "lat": 25.00419,
+      "lon": 121.44477
+    },
+    {
+      "stationId": "1040",
+      "name": "樹林",
+      "nameEn": "Shulin",
+      "lat": 24.99123,
+      "lon": 121.42442
+    },
+    {
+      "stationId": "1050",
+      "name": "南樹林",
+      "nameEn": "South Shulin",
+      "lat": 24.98044,
+      "lon": 121.40884
+    },
+    {
+      "stationId": "1060",
+      "name": "山佳",
+      "nameEn": "Shanjia",
+      "lat": 24.97273,
+      "lon": 121.39254
+    },
+    {
+      "stationId": "1070",
+      "name": "鶯歌",
+      "nameEn": "Yingge",
+      "lat": 24.95455,
+      "lon": 121.35517
+    },
+    {
+      "stationId": "1075",
+      "name": "鳳鳴",
+      "nameEn": "Fengming",
+      "lat": 24.97268,
+      "lon": 121.33658
+    },
+    {
+      "stationId": "1080",
+      "name": "桃園",
+      "nameEn": "Taoyuan",
+      "lat": 24.98888,
+      "lon": 121.31449
+    },
+    {
+      "stationId": "1090",
+      "name": "內壢",
+      "nameEn": "Neili",
+      "lat": 24.97281,
+      "lon": 121.25826
+    },
+    {
+      "stationId": "1100",
+      "name": "中壢",
+      "nameEn": "Zhongli_Taoyuan",
+      "lat": 24.95374,
+      "lon": 121.22589
+    },
+    {
+      "stationId": "1110",
+      "name": "埔心",
+      "nameEn": "Puxin",
+      "lat": 24.91939,
+      "lon": 121.18363
+    },
+    {
+      "stationId": "1120",
+      "name": "楊梅",
+      "nameEn": "Yangmei",
+      "lat": 24.91427,
+      "lon": 121.14637
+    },
+    {
+      "stationId": "1130",
+      "name": "富岡",
+      "nameEn": "Fugang",
+      "lat": 24.93436,
+      "lon": 121.08309
+    },
+    {
+      "stationId": "1140",
+      "name": "新富",
+      "nameEn": "Xinfu",
+      "lat": 24.93109,
+      "lon": 121.06751
+    },
+    {
+      "stationId": "1150",
+      "name": "北湖",
+      "nameEn": "Beihu",
+      "lat": 24.92218,
+      "lon": 121.05575
+    },
+    {
+      "stationId": "1160",
+      "name": "湖口",
+      "nameEn": "Hukou",
+      "lat": 24.90303,
+      "lon": 121.04412
+    },
+    {
+      "stationId": "1170",
+      "name": "新豐",
+      "nameEn": "Xinfeng",
+      "lat": 24.86939,
+      "lon": 120.99626
+    },
+    {
+      "stationId": "1180",
+      "name": "竹北",
+      "nameEn": "Zhubei",
+      "lat": 24.83919,
+      "lon": 121.00946
+    },
+    {
+      "stationId": "1190",
+      "name": "北新竹",
+      "nameEn": "North Hsinchu",
+      "lat": 24.80875,
+      "lon": 120.98381
+    },
+    {
+      "stationId": "1191",
+      "name": "千甲",
+      "nameEn": "Qianjia",
+      "lat": 24.80657,
+      "lon": 121.0034
+    },
+    {
+      "stationId": "1192",
+      "name": "新莊",
+      "nameEn": "Xinzhuang",
+      "lat": 24.78811,
+      "lon": 121.02196
+    },
+    {
+      "stationId": "1193",
+      "name": "竹中",
+      "nameEn": "Zhuzhong",
+      "lat": 24.78145,
+      "lon": 121.03141
+    },
+    {
+      "stationId": "1194",
+      "name": "六家",
+      "nameEn": "Liujia",
+      "lat": 24.80766,
+      "lon": 121.03941
+    },
+    {
+      "stationId": "1201",
+      "name": "上員",
+      "nameEn": "Shangyuan",
+      "lat": 24.77776,
+      "lon": 121.05582
+    },
+    {
+      "stationId": "1202",
+      "name": "榮華",
+      "nameEn": "Ronghua",
+      "lat": 24.74839,
+      "lon": 121.08319
+    },
+    {
+      "stationId": "1203",
+      "name": "竹東",
+      "nameEn": "Zhudong",
+      "lat": 24.73823,
+      "lon": 121.09472
+    },
+    {
+      "stationId": "1204",
+      "name": "橫山",
+      "nameEn": "Hengshan",
+      "lat": 24.72041,
+      "lon": 121.11772
+    },
+    {
+      "stationId": "1205",
+      "name": "九讚頭",
+      "nameEn": "Jiuzantou",
+      "lat": 24.72062,
+      "lon": 121.13622
+    },
+    {
+      "stationId": "1206",
+      "name": "合興",
+      "nameEn": "Hexing",
+      "lat": 24.71667,
+      "lon": 121.15437
+    },
+    {
+      "stationId": "1207",
+      "name": "富貴",
+      "nameEn": "Fugui",
+      "lat": 24.71551,
+      "lon": 121.16743
+    },
+    {
+      "stationId": "1208",
+      "name": "內灣",
+      "nameEn": "Neiwan",
+      "lat": 24.70535,
+      "lon": 121.18255
+    },
+    {
+      "stationId": "1210",
+      "name": "新竹",
+      "nameEn": "Hsinchu",
+      "lat": 24.80157,
+      "lon": 120.97157
+    },
+    {
+      "stationId": "1220",
+      "name": "三姓橋",
+      "nameEn": "Sanxingqiao",
+      "lat": 24.78731,
+      "lon": 120.92844
+    },
+    {
+      "stationId": "1230",
+      "name": "香山",
+      "nameEn": "Xiangshan",
+      "lat": 24.76311,
+      "lon": 120.91388
+    },
+    {
+      "stationId": "1240",
+      "name": "崎頂",
+      "nameEn": "Qiding",
+      "lat": 24.72291,
+      "lon": 120.87183
+    },
+    {
+      "stationId": "1250",
+      "name": "竹南",
+      "nameEn": "Zhunan",
+      "lat": 24.68654,
+      "lon": 120.88041
+    },
+    {
+      "stationId": "1998",
+      "name": "樹林調車場",
+      "nameEn": "Shulin Rail Yard",
+      "lat": 24.97992,
+      "lon": 121.40554
+    },
+    {
+      "stationId": "2110",
+      "name": "談文",
+      "nameEn": "Tanwen",
+      "lat": 24.65641,
+      "lon": 120.85825
+    },
+    {
+      "stationId": "2120",
+      "name": "大山",
+      "nameEn": "Dashan",
+      "lat": 24.64565,
+      "lon": 120.80376
+    },
+    {
+      "stationId": "2130",
+      "name": "後龍",
+      "nameEn": "Houlong",
+      "lat": 24.61621,
+      "lon": 120.78731
+    },
+    {
+      "stationId": "2140",
+      "name": "龍港",
+      "nameEn": "Longgang",
+      "lat": 24.61169,
+      "lon": 120.75812
+    },
+    {
+      "stationId": "2150",
+      "name": "白沙屯",
+      "nameEn": "Baishatun",
+      "lat": 24.56481,
+      "lon": 120.70824
+    },
+    {
+      "stationId": "2160",
+      "name": "新埔",
+      "nameEn": "Xinpu",
+      "lat": 24.54018,
+      "lon": 120.69518
+    },
+    {
+      "stationId": "2170",
+      "name": "通霄",
+      "nameEn": "Tongxiao",
+      "lat": 24.49141,
+      "lon": 120.67843
+    },
+    {
+      "stationId": "2180",
+      "name": "苑裡",
+      "nameEn": "Yuanli",
+      "lat": 24.44344,
+      "lon": 120.65146
+    },
+    {
+      "stationId": "2190",
+      "name": "日南",
+      "nameEn": "Rinan",
+      "lat": 24.37815,
+      "lon": 120.65412
+    },
+    {
+      "stationId": "2200",
+      "name": "大甲",
+      "nameEn": "Dajia",
+      "lat": 24.34448,
+      "lon": 120.62702
+    },
+    {
+      "stationId": "2210",
+      "name": "臺中港",
+      "nameEn": "Taichung Port",
+      "lat": 24.30441,
+      "lon": 120.60231
+    },
+    {
+      "stationId": "2220",
+      "name": "清水",
+      "nameEn": "Qingshui",
+      "lat": 24.26364,
+      "lon": 120.56918
+    },
+    {
+      "stationId": "2230",
+      "name": "沙鹿",
+      "nameEn": "Shalu",
+      "lat": 24.23702,
+      "lon": 120.55752
+    },
+    {
+      "stationId": "2240",
+      "name": "龍井",
+      "nameEn": "Longjing",
+      "lat": 24.19748,
+      "lon": 120.54335
+    },
+    {
+      "stationId": "2250",
+      "name": "大肚",
+      "nameEn": "Dadu",
+      "lat": 24.15417,
+      "lon": 120.54249
+    },
+    {
+      "stationId": "2260",
+      "name": "追分",
+      "nameEn": "Zhuifen",
+      "lat": 24.12051,
+      "lon": 120.57018
+    },
+    {
+      "stationId": "3140",
+      "name": "造橋",
+      "nameEn": "Zaoqiao",
+      "lat": 24.64186,
+      "lon": 120.86721
+    },
+    {
+      "stationId": "3150",
+      "name": "豐富",
+      "nameEn": "Fengfu",
+      "lat": 24.60429,
+      "lon": 120.82637
+    },
+    {
+      "stationId": "3160",
+      "name": "苗栗",
+      "nameEn": "Miaoli",
+      "lat": 24.57001,
+      "lon": 120.82233
+    },
+    {
+      "stationId": "3170",
+      "name": "南勢",
+      "nameEn": "Nanshi",
+      "lat": 24.52246,
+      "lon": 120.79154
+    },
+    {
+      "stationId": "3180",
+      "name": "銅鑼",
+      "nameEn": "Tongluo",
+      "lat": 24.48634,
+      "lon": 120.78617
+    },
+    {
+      "stationId": "3190",
+      "name": "三義",
+      "nameEn": "Sanyi",
+      "lat": 24.42066,
+      "lon": 120.77393
+    },
+    {
+      "stationId": "3210",
+      "name": "泰安",
+      "nameEn": "Tai'an",
+      "lat": 24.33146,
+      "lon": 120.74181
+    },
+    {
+      "stationId": "3220",
+      "name": "后里",
+      "nameEn": "Houli",
+      "lat": 24.30933,
+      "lon": 120.73288
+    },
+    {
+      "stationId": "3230",
+      "name": "豐原",
+      "nameEn": "Fengyuan",
+      "lat": 24.25438,
+      "lon": 120.72374
+    },
+    {
+      "stationId": "3240",
+      "name": "栗林",
+      "nameEn": "Lilin",
+      "lat": 24.23461,
+      "lon": 120.7106
+    },
+    {
+      "stationId": "3250",
+      "name": "潭子",
+      "nameEn": "Tanzi",
+      "lat": 24.21214,
+      "lon": 120.70564
+    },
+    {
+      "stationId": "3260",
+      "name": "頭家厝",
+      "nameEn": "Toujiacuo",
+      "lat": 24.19572,
+      "lon": 120.70398
+    },
+    {
+      "stationId": "3270",
+      "name": "松竹",
+      "nameEn": "Songzhu",
+      "lat": 24.18035,
+      "lon": 120.70193
+    },
+    {
+      "stationId": "3280",
+      "name": "太原",
+      "nameEn": "Taiyuan",
+      "lat": 24.16449,
+      "lon": 120.69988
+    },
+    {
+      "stationId": "3290",
+      "name": "精武",
+      "nameEn": "Jingwu",
+      "lat": 24.14887,
+      "lon": 120.69784
+    },
+    {
+      "stationId": "3300",
+      "name": "臺中",
+      "nameEn": "Taichung",
+      "lat": 24.13728,
+      "lon": 120.68691
+    },
+    {
+      "stationId": "3310",
+      "name": "五權",
+      "nameEn": "Wuquan",
+      "lat": 24.12877,
+      "lon": 120.66654
+    },
+    {
+      "stationId": "3320",
+      "name": "大慶",
+      "nameEn": "Daqing",
+      "lat": 24.11911,
+      "lon": 120.64795
+    },
+    {
+      "stationId": "3330",
+      "name": "烏日",
+      "nameEn": "Wuri",
+      "lat": 24.10867,
+      "lon": 120.62244
+    },
+    {
+      "stationId": "3340",
+      "name": "新烏日",
+      "nameEn": "Xinwuri",
+      "lat": 24.10937,
+      "lon": 120.61421
+    },
+    {
+      "stationId": "3350",
+      "name": "成功",
+      "nameEn": "Chenggong",
+      "lat": 24.11424,
+      "lon": 120.59021
+    },
+    {
+      "stationId": "3360",
+      "name": "彰化",
+      "nameEn": "Changhua",
+      "lat": 24.08177,
+      "lon": 120.53854
+    },
+    {
+      "stationId": "3370",
+      "name": "花壇",
+      "nameEn": "Huatan",
+      "lat": 24.02502,
+      "lon": 120.53742
+    },
+    {
+      "stationId": "3380",
+      "name": "大村",
+      "nameEn": "Dacun",
+      "lat": 23.99002,
+      "lon": 120.56062
+    },
+    {
+      "stationId": "3390",
+      "name": "員林",
+      "nameEn": "Yuanlin",
+      "lat": 23.95947,
+      "lon": 120.56977
+    },
+    {
+      "stationId": "3400",
+      "name": "永靖",
+      "nameEn": "Yongjing",
+      "lat": 23.92808,
+      "lon": 120.57173
+    },
+    {
+      "stationId": "3410",
+      "name": "社頭",
+      "nameEn": "Shetou",
+      "lat": 23.89573,
+      "lon": 120.58077
+    },
+    {
+      "stationId": "3420",
+      "name": "田中",
+      "nameEn": "Tianzhong",
+      "lat": 23.85843,
+      "lon": 120.59146
+    },
+    {
+      "stationId": "3430",
+      "name": "二水",
+      "nameEn": "Ershui",
+      "lat": 23.81321,
+      "lon": 120.61805
+    },
+    {
+      "stationId": "3431",
+      "name": "源泉",
+      "nameEn": "Yuanquan",
+      "lat": 23.79845,
+      "lon": 120.64211
+    },
+    {
+      "stationId": "3432",
+      "name": "濁水",
+      "nameEn": "Zhuoshui",
+      "lat": 23.83467,
+      "lon": 120.70467
+    },
+    {
+      "stationId": "3433",
+      "name": "龍泉",
+      "nameEn": "Longquan",
+      "lat": 23.83521,
+      "lon": 120.75014
+    },
+    {
+      "stationId": "3434",
+      "name": "集集",
+      "nameEn": "Jiji",
+      "lat": 23.82647,
+      "lon": 120.78495
+    },
+    {
+      "stationId": "3435",
+      "name": "水里",
+      "nameEn": "Shuili",
+      "lat": 23.81845,
+      "lon": 120.85332
+    },
+    {
+      "stationId": "3436",
+      "name": "車埕",
+      "nameEn": "Checheng",
+      "lat": 23.83263,
+      "lon": 120.86572
+    },
+    {
+      "stationId": "3450",
+      "name": "林內",
+      "nameEn": "Linnei",
+      "lat": 23.75967,
+      "lon": 120.61499
+    },
+    {
+      "stationId": "3460",
+      "name": "石榴",
+      "nameEn": "Shiliu",
+      "lat": 23.73167,
+      "lon": 120.57998
+    },
+    {
+      "stationId": "3470",
+      "name": "斗六",
+      "nameEn": "Douliu",
+      "lat": 23.71184,
+      "lon": 120.54099
+    },
+    {
+      "stationId": "3480",
+      "name": "斗南",
+      "nameEn": "Dounan",
+      "lat": 23.67257,
+      "lon": 120.48089
+    },
+    {
+      "stationId": "3490",
+      "name": "石龜",
+      "nameEn": "Shigui",
+      "lat": 23.63951,
+      "lon": 120.47106
+    },
+    {
+      "stationId": "4050",
+      "name": "大林",
+      "nameEn": "Dalin",
+      "lat": 23.60089,
+      "lon": 120.45597
+    },
+    {
+      "stationId": "4060",
+      "name": "民雄",
+      "nameEn": "Minxiong",
+      "lat": 23.55522,
+      "lon": 120.43165
+    },
+    {
+      "stationId": "4070",
+      "name": "嘉北",
+      "nameEn": "Jiabei",
+      "lat": 23.49981,
+      "lon": 120.44851
+    },
+    {
+      "stationId": "4080",
+      "name": "嘉義",
+      "nameEn": "Chiayi",
+      "lat": 23.47915,
+      "lon": 120.44114
+    },
+    {
+      "stationId": "4090",
+      "name": "水上",
+      "nameEn": "Shuishang",
+      "lat": 23.43398,
+      "lon": 120.39971
+    },
+    {
+      "stationId": "4100",
+      "name": "南靖",
+      "nameEn": "Nanjing",
+      "lat": 23.41344,
+      "lon": 120.38654
+    },
+    {
+      "stationId": "4110",
+      "name": "後壁",
+      "nameEn": "Houbi",
+      "lat": 23.36626,
+      "lon": 120.36058
+    },
+    {
+      "stationId": "4120",
+      "name": "新營",
+      "nameEn": "Xinying",
+      "lat": 23.30673,
+      "lon": 120.32307
+    },
+    {
+      "stationId": "4130",
+      "name": "柳營",
+      "nameEn": "Liuying",
+      "lat": 23.27762,
+      "lon": 120.32252
+    },
+    {
+      "stationId": "4140",
+      "name": "林鳳營",
+      "nameEn": "Linfengying",
+      "lat": 23.24259,
+      "lon": 120.32107
+    },
+    {
+      "stationId": "4150",
+      "name": "隆田",
+      "nameEn": "Longtian",
+      "lat": 23.19271,
+      "lon": 120.31917
+    },
+    {
+      "stationId": "4160",
+      "name": "拔林",
+      "nameEn": "Balin",
+      "lat": 23.17284,
+      "lon": 120.32125
+    },
+    {
+      "stationId": "4170",
+      "name": "善化",
+      "nameEn": "Shanhua",
+      "lat": 23.13333,
+      "lon": 120.30653
+    },
+    {
+      "stationId": "4180",
+      "name": "南科",
+      "nameEn": "Nanke",
+      "lat": 23.10726,
+      "lon": 120.30202
+    },
+    {
+      "stationId": "4190",
+      "name": "新市",
+      "nameEn": "Xinshi",
+      "lat": 23.06823,
+      "lon": 120.29004
+    },
+    {
+      "stationId": "4200",
+      "name": "永康",
+      "nameEn": "Yongkang",
+      "lat": 23.03825,
+      "lon": 120.25347
+    },
+    {
+      "stationId": "4210",
+      "name": "大橋",
+      "nameEn": "Daqiao",
+      "lat": 23.01923,
+      "lon": 120.22429
+    },
+    {
+      "stationId": "4220",
+      "name": "臺南",
+      "nameEn": "Tainan",
+      "lat": 22.99681,
+      "lon": 120.21295
+    },
+    {
+      "stationId": "4250",
+      "name": "保安",
+      "nameEn": "Bao'an",
+      "lat": 22.93296,
+      "lon": 120.23158
+    },
+    {
+      "stationId": "4260",
+      "name": "仁德",
+      "nameEn": "Rende",
+      "lat": 22.92354,
+      "lon": 120.24054
+    },
+    {
+      "stationId": "4270",
+      "name": "中洲",
+      "nameEn": "Zhongzhou",
+      "lat": 22.90446,
+      "lon": 120.25284
+    },
+    {
+      "stationId": "4271",
+      "name": "長榮大學",
+      "nameEn": "Chang Jung Christian University",
+      "lat": 22.90729,
+      "lon": 120.27263
+    },
+    {
+      "stationId": "4272",
+      "name": "沙崙",
+      "nameEn": "Shalun",
+      "lat": 22.92407,
+      "lon": 120.28622
+    },
+    {
+      "stationId": "4290",
+      "name": "大湖",
+      "nameEn": "Dahu",
+      "lat": 22.87821,
+      "lon": 120.25384
+    },
+    {
+      "stationId": "4300",
+      "name": "路竹",
+      "nameEn": "Luzhu",
+      "lat": 22.85404,
+      "lon": 120.26619
+    },
+    {
+      "stationId": "4310",
+      "name": "岡山",
+      "nameEn": "Gangshan",
+      "lat": 22.79223,
+      "lon": 120.30004
+    },
+    {
+      "stationId": "4320",
+      "name": "橋頭",
+      "nameEn": "Qiaotou",
+      "lat": 22.76098,
+      "lon": 120.31011
+    },
+    {
+      "stationId": "4330",
+      "name": "楠梓",
+      "nameEn": "Nanzi",
+      "lat": 22.72696,
+      "lon": 120.32425
+    },
+    {
+      "stationId": "4340",
+      "name": "新左營",
+      "nameEn": "Xinzuoying",
+      "lat": 22.68754,
+      "lon": 120.30678
+    },
+    {
+      "stationId": "4350",
+      "name": "左營",
+      "nameEn": "Zuoying",
+      "lat": 22.67445,
+      "lon": 120.29401
+    },
+    {
+      "stationId": "4360",
+      "name": "內惟",
+      "nameEn": "Neiwei",
+      "lat": 22.66589,
+      "lon": 120.28701
+    },
+    {
+      "stationId": "4370",
+      "name": "美術館",
+      "nameEn": "Museum of Fine Arts",
+      "lat": 22.65185,
+      "lon": 120.28148
+    },
+    {
+      "stationId": "4380",
+      "name": "鼓山",
+      "nameEn": "Gushan",
+      "lat": 22.64181,
+      "lon": 120.28071
+    },
+    {
+      "stationId": "4390",
+      "name": "三塊厝",
+      "nameEn": "Sankuaicuo",
+      "lat": 22.63931,
+      "lon": 120.29414
+    },
+    {
+      "stationId": "4400",
+      "name": "高雄",
+      "nameEn": "Kaohsiung",
+      "lat": 22.63946,
+      "lon": 120.30292
+    },
+    {
+      "stationId": "4410",
+      "name": "民族",
+      "nameEn": "Minzu",
+      "lat": 22.63879,
+      "lon": 120.31494
+    },
+    {
+      "stationId": "4420",
+      "name": "科工館",
+      "nameEn": "Science And Technology Museum",
+      "lat": 22.63709,
+      "lon": 120.32603
+    },
+    {
+      "stationId": "4430",
+      "name": "正義",
+      "nameEn": "Zhengyi",
+      "lat": 22.63425,
+      "lon": 120.34245
+    },
+    {
+      "stationId": "4440",
+      "name": "鳳山",
+      "nameEn": "Fongshan",
+      "lat": 22.63145,
+      "lon": 120.35745
+    },
+    {
+      "stationId": "4450",
+      "name": "後庄",
+      "nameEn": "Houzhuang",
+      "lat": 22.64016,
+      "lon": 120.39131
+    },
+    {
+      "stationId": "4460",
+      "name": "九曲堂",
+      "nameEn": "Jiuqutang",
+      "lat": 22.65641,
+      "lon": 120.42089
+    },
+    {
+      "stationId": "4470",
+      "name": "六塊厝",
+      "nameEn": "Liukuaicuo",
+      "lat": 22.66597,
+      "lon": 120.46497
+    },
+    {
+      "stationId": "5000",
+      "name": "屏東",
+      "nameEn": "Pingtung",
+      "lat": 22.66905,
+      "lon": 120.48617
+    },
+    {
+      "stationId": "5010",
+      "name": "歸來",
+      "nameEn": "Guilai",
+      "lat": 22.65246,
+      "lon": 120.50263
+    },
+    {
+      "stationId": "5020",
+      "name": "麟洛",
+      "nameEn": "Linluo",
+      "lat": 22.63481,
+      "lon": 120.51432
+    },
+    {
+      "stationId": "5030",
+      "name": "西勢",
+      "nameEn": "Xishi",
+      "lat": 22.61637,
+      "lon": 120.52649
+    },
+    {
+      "stationId": "5040",
+      "name": "竹田",
+      "nameEn": "Zhutian",
+      "lat": 22.58658,
+      "lon": 120.53978
+    },
+    {
+      "stationId": "5050",
+      "name": "潮州",
+      "nameEn": "Chaozhou",
+      "lat": 22.55008,
+      "lon": 120.53604
+    },
+    {
+      "stationId": "5060",
+      "name": "崁頂",
+      "nameEn": "Kanding",
+      "lat": 22.51311,
+      "lon": 120.51481
+    },
+    {
+      "stationId": "5070",
+      "name": "南州",
+      "nameEn": "Nanzhou",
+      "lat": 22.49207,
+      "lon": 120.51174
+    },
+    {
+      "stationId": "5080",
+      "name": "鎮安",
+      "nameEn": "Zhen'an",
+      "lat": 22.45794,
+      "lon": 120.51129
+    },
+    {
+      "stationId": "5090",
+      "name": "林邊",
+      "nameEn": "Linbian",
+      "lat": 22.43135,
+      "lon": 120.51529
+    },
+    {
+      "stationId": "5100",
+      "name": "佳冬",
+      "nameEn": "Jiadong",
+      "lat": 22.41409,
+      "lon": 120.54774
+    },
+    {
+      "stationId": "5110",
+      "name": "東海",
+      "nameEn": "Donghai",
+      "lat": 22.39897,
+      "lon": 120.57236
+    },
+    {
+      "stationId": "5120",
+      "name": "枋寮",
+      "nameEn": "Fangliao",
+      "lat": 22.36802,
+      "lon": 120.59511
+    },
+    {
+      "stationId": "5130",
+      "name": "加祿",
+      "nameEn": "Jialu",
+      "lat": 22.33085,
+      "lon": 120.62445
+    },
+    {
+      "stationId": "5140",
+      "name": "內獅",
+      "nameEn": "Neishi",
+      "lat": 22.30617,
+      "lon": 120.64331
+    },
+    {
+      "stationId": "5160",
+      "name": "枋山",
+      "nameEn": "Fangshan",
+      "lat": 22.26704,
+      "lon": 120.65947
+    },
+    {
+      "stationId": "5170",
+      "name": "枋野",
+      "nameEn": "Fangye",
+      "lat": 22.28091,
+      "lon": 120.71709
+    },
+    {
+      "stationId": "5190",
+      "name": "大武",
+      "nameEn": "Dawu",
+      "lat": 22.36526,
+      "lon": 120.90094
+    },
+    {
+      "stationId": "5200",
+      "name": "瀧溪",
+      "nameEn": "Longxi",
+      "lat": 22.46102,
+      "lon": 120.94176
+    },
+    {
+      "stationId": "5210",
+      "name": "金崙",
+      "nameEn": "Jinlun",
+      "lat": 22.53161,
+      "lon": 120.96721
+    },
+    {
+      "stationId": "5220",
+      "name": "太麻里",
+      "nameEn": "Taimali",
+      "lat": 22.61883,
+      "lon": 121.00492
+    },
+    {
+      "stationId": "5230",
+      "name": "知本",
+      "nameEn": "Zhiben",
+      "lat": 22.71022,
+      "lon": 121.06068
+    },
+    {
+      "stationId": "5240",
+      "name": "康樂",
+      "nameEn": "Kangle",
+      "lat": 22.76426,
+      "lon": 121.09356
+    },
+    {
+      "stationId": "5998",
+      "name": "南方小站",
+      "nameEn": "South",
+      "lat": 22.52755,
+      "lon": 120.53658
+    },
+    {
+      "stationId": "5999",
+      "name": "潮州基地",
+      "nameEn": "Chaozhou Railway Workshop",
+      "lat": 22.52231,
+      "lon": 120.52642
+    },
+    {
+      "stationId": "6000",
+      "name": "臺東",
+      "nameEn": "Taitung",
+      "lat": 22.79372,
+      "lon": 121.1231
+    },
+    {
+      "stationId": "6010",
+      "name": "山里",
+      "nameEn": "Shanli",
+      "lat": 22.86194,
+      "lon": 121.13778
+    },
+    {
+      "stationId": "6020",
+      "name": "鹿野",
+      "nameEn": "Luye",
+      "lat": 22.91249,
+      "lon": 121.13701
+    },
+    {
+      "stationId": "6030",
+      "name": "瑞源",
+      "nameEn": "Ruiyuan",
+      "lat": 22.95604,
+      "lon": 121.15901
+    },
+    {
+      "stationId": "6040",
+      "name": "瑞和",
+      "nameEn": "Ruihe",
+      "lat": 22.97997,
+      "lon": 121.15595
+    },
+    {
+      "stationId": "6050",
+      "name": "關山",
+      "nameEn": "Guanshan",
+      "lat": 23.04566,
+      "lon": 121.1643
+    },
+    {
+      "stationId": "6060",
+      "name": "海端",
+      "nameEn": "Haiduan",
+      "lat": 23.10292,
+      "lon": 121.17676
+    },
+    {
+      "stationId": "6070",
+      "name": "池上",
+      "nameEn": "Chishang",
+      "lat": 23.12613,
+      "lon": 121.21949
+    },
+    {
+      "stationId": "6080",
+      "name": "富里",
+      "nameEn": "Fuli",
+      "lat": 23.17924,
+      "lon": 121.24864
+    },
+    {
+      "stationId": "6090",
+      "name": "東竹",
+      "nameEn": "Dongzhu",
+      "lat": 23.22605,
+      "lon": 121.27842
+    },
+    {
+      "stationId": "6100",
+      "name": "東里",
+      "nameEn": "Dongli",
+      "lat": 23.27234,
+      "lon": 121.30418
+    },
+    {
+      "stationId": "6110",
+      "name": "玉里",
+      "nameEn": "Yuli",
+      "lat": 23.33155,
+      "lon": 121.31172
+    },
+    {
+      "stationId": "6120",
+      "name": "三民",
+      "nameEn": "Sanmin",
+      "lat": 23.42458,
+      "lon": 121.34539
+    },
+    {
+      "stationId": "6130",
+      "name": "瑞穗",
+      "nameEn": "Ruisui",
+      "lat": 23.49738,
+      "lon": 121.37684
+    },
+    {
+      "stationId": "6140",
+      "name": "富源",
+      "nameEn": "Fuyuan",
+      "lat": 23.58031,
+      "lon": 121.38008
+    },
+    {
+      "stationId": "6150",
+      "name": "大富",
+      "nameEn": "Dafu",
+      "lat": 23.60571,
+      "lon": 121.38963
+    },
+    {
+      "stationId": "6160",
+      "name": "光復",
+      "nameEn": "Guangfu",
+      "lat": 23.66631,
+      "lon": 121.42117
+    },
+    {
+      "stationId": "6170",
+      "name": "萬榮",
+      "nameEn": "Wanrong",
+      "lat": 23.71199,
+      "lon": 121.41907
+    },
+    {
+      "stationId": "6180",
+      "name": "鳳林",
+      "nameEn": "Fenglin",
+      "lat": 23.74634,
+      "lon": 121.44701
+    },
+    {
+      "stationId": "6190",
+      "name": "南平",
+      "nameEn": "Nanping",
+      "lat": 23.78231,
+      "lon": 121.45824
+    },
+    {
+      "stationId": "6200",
+      "name": "林榮新光",
+      "nameEn": "Linrong Shin Kong",
+      "lat": 23.80176,
+      "lon": 121.46169
+    },
+    {
+      "stationId": "6210",
+      "name": "豐田",
+      "nameEn": "Fengtian",
+      "lat": 23.84842,
+      "lon": 121.49618
+    },
+    {
+      "stationId": "6220",
+      "name": "壽豐",
+      "nameEn": "Shoufeng",
+      "lat": 23.86901,
+      "lon": 121.51064
+    },
+    {
+      "stationId": "6230",
+      "name": "平和",
+      "nameEn": "Pinghe",
+      "lat": 23.88279,
+      "lon": 121.52045
+    },
+    {
+      "stationId": "6240",
+      "name": "志學",
+      "nameEn": "Zhixue",
+      "lat": 23.90769,
+      "lon": 121.5295
+    },
+    {
+      "stationId": "6250",
+      "name": "吉安",
+      "nameEn": "Ji'an",
+      "lat": 23.96823,
+      "lon": 121.58266
+    },
+    {
+      "stationId": "7000",
+      "name": "花蓮",
+      "nameEn": "Hualien",
+      "lat": 23.99265,
+      "lon": 121.60131
+    },
+    {
+      "stationId": "7010",
+      "name": "北埔",
+      "nameEn": "Beipu",
+      "lat": 24.03253,
+      "lon": 121.60166
+    },
+    {
+      "stationId": "7020",
+      "name": "景美",
+      "nameEn": "Jingmei",
+      "lat": 24.09041,
+      "lon": 121.61095
+    },
+    {
+      "stationId": "7030",
+      "name": "新城",
+      "nameEn": "Xincheng",
+      "lat": 24.12756,
+      "lon": 121.64086
+    },
+    {
+      "stationId": "7040",
+      "name": "崇德",
+      "nameEn": "Chongde",
+      "lat": 24.17199,
+      "lon": 121.65536
+    },
+    {
+      "stationId": "7050",
+      "name": "和仁",
+      "nameEn": "Heren",
+      "lat": 24.24225,
+      "lon": 121.71182
+    },
+    {
+      "stationId": "7060",
+      "name": "和平",
+      "nameEn": "Heping",
+      "lat": 24.29839,
+      "lon": 121.75344
+    },
+    {
+      "stationId": "7070",
+      "name": "漢本",
+      "nameEn": "Hanben",
+      "lat": 24.33543,
+      "lon": 121.76838
+    },
+    {
+      "stationId": "7080",
+      "name": "武塔",
+      "nameEn": "Wuta",
+      "lat": 24.44879,
+      "lon": 121.77601
+    },
+    {
+      "stationId": "7090",
+      "name": "南澳",
+      "nameEn": "Nan'ao",
+      "lat": 24.46342,
+      "lon": 121.80103
+    },
+    {
+      "stationId": "7100",
+      "name": "東澳",
+      "nameEn": "Dong'ao",
+      "lat": 24.51827,
+      "lon": 121.83072
+    },
+    {
+      "stationId": "7110",
+      "name": "永樂",
+      "nameEn": "Yongle",
+      "lat": 24.56843,
+      "lon": 121.84458
+    },
+    {
+      "stationId": "7120",
+      "name": "蘇澳",
+      "nameEn": "Su'ao",
+      "lat": 24.59516,
+      "lon": 121.85143
+    },
+    {
+      "stationId": "7130",
+      "name": "蘇澳新",
+      "nameEn": "Su'aoxin",
+      "lat": 24.60852,
+      "lon": 121.82735
+    },
+    {
+      "stationId": "7140",
+      "name": "新馬",
+      "nameEn": "Xinma",
+      "lat": 24.61541,
+      "lon": 121.82291
+    },
+    {
+      "stationId": "7150",
+      "name": "冬山",
+      "nameEn": "Dongshan",
+      "lat": 24.63633,
+      "lon": 121.79211
+    },
+    {
+      "stationId": "7160",
+      "name": "羅東",
+      "nameEn": "Luodong",
+      "lat": 24.67791,
+      "lon": 121.77464
+    },
+    {
+      "stationId": "7170",
+      "name": "中里",
+      "nameEn": "Zhongli_Yilan",
+      "lat": 24.69415,
+      "lon": 121.77526
+    },
+    {
+      "stationId": "7180",
+      "name": "二結",
+      "nameEn": "Erjie",
+      "lat": 24.70528,
+      "lon": 121.77409
+    },
+    {
+      "stationId": "7190",
+      "name": "宜蘭",
+      "nameEn": "Yilan",
+      "lat": 24.75457,
+      "lon": 121.75803
+    },
+    {
+      "stationId": "7200",
+      "name": "四城",
+      "nameEn": "Sicheng",
+      "lat": 24.78681,
+      "lon": 121.76271
+    },
+    {
+      "stationId": "7210",
+      "name": "礁溪",
+      "nameEn": "Jiaoxi",
+      "lat": 24.82703,
+      "lon": 121.77535
+    },
+    {
+      "stationId": "7220",
+      "name": "頂埔",
+      "nameEn": "Dingpu",
+      "lat": 24.84391,
+      "lon": 121.80913
+    },
+    {
+      "stationId": "7230",
+      "name": "頭城",
+      "nameEn": "Toucheng",
+      "lat": 24.85898,
+      "lon": 121.82258
+    },
+    {
+      "stationId": "7240",
+      "name": "外澳",
+      "nameEn": "Wai'ao",
+      "lat": 24.88375,
+      "lon": 121.84572
+    },
+    {
+      "stationId": "7250",
+      "name": "龜山",
+      "nameEn": "Guishan",
+      "lat": 24.90484,
+      "lon": 121.8689
+    },
+    {
+      "stationId": "7260",
+      "name": "大溪",
+      "nameEn": "Daxi",
+      "lat": 24.93836,
+      "lon": 121.88983
+    },
+    {
+      "stationId": "7270",
+      "name": "大里",
+      "nameEn": "Dali",
+      "lat": 24.96677,
+      "lon": 121.92253
+    },
+    {
+      "stationId": "7280",
+      "name": "石城",
+      "nameEn": "Shicheng",
+      "lat": 24.97832,
+      "lon": 121.94507
+    },
+    {
+      "stationId": "7290",
+      "name": "福隆",
+      "nameEn": "Fulong",
+      "lat": 25.01595,
+      "lon": 121.94471
+    },
+    {
+      "stationId": "7300",
+      "name": "貢寮",
+      "nameEn": "Gongliao",
+      "lat": 25.02197,
+      "lon": 121.90879
+    },
+    {
+      "stationId": "7310",
+      "name": "雙溪",
+      "nameEn": "Shuangxi",
+      "lat": 25.03851,
+      "lon": 121.86654
+    },
+    {
+      "stationId": "7320",
+      "name": "牡丹",
+      "nameEn": "Mudan",
+      "lat": 25.05871,
+      "lon": 121.85197
+    },
+    {
+      "stationId": "7330",
+      "name": "三貂嶺",
+      "nameEn": "Sandiaoling",
+      "lat": 25.06555,
+      "lon": 121.82257
+    },
+    {
+      "stationId": "7331",
+      "name": "大華",
+      "nameEn": "Dahua",
+      "lat": 25.04998,
+      "lon": 121.79732
+    },
+    {
+      "stationId": "7332",
+      "name": "十分",
+      "nameEn": "Shifen",
+      "lat": 25.04111,
+      "lon": 121.77514
+    },
+    {
+      "stationId": "7333",
+      "name": "望古",
+      "nameEn": "Wanggu",
+      "lat": 25.03445,
+      "lon": 121.76349
+    },
+    {
+      "stationId": "7334",
+      "name": "嶺腳",
+      "nameEn": "Lingjiao",
+      "lat": 25.03016,
+      "lon": 121.74795
+    },
+    {
+      "stationId": "7335",
+      "name": "平溪",
+      "nameEn": "Pingxi",
+      "lat": 25.02571,
+      "lon": 121.74019
+    },
+    {
+      "stationId": "7336",
+      "name": "菁桐",
+      "nameEn": "Jingtong",
+      "lat": 25.02391,
+      "lon": 121.72391
+    },
+    {
+      "stationId": "7350",
+      "name": "猴硐",
+      "nameEn": "Houtong",
+      "lat": 25.08702,
+      "lon": 121.82743
+    },
+    {
+      "stationId": "7360",
+      "name": "瑞芳",
+      "nameEn": "Ruifang",
+      "lat": 25.10872,
+      "lon": 121.80599
+    },
+    {
+      "stationId": "7361",
+      "name": "海科館",
+      "nameEn": "Haikeguan",
+      "lat": 25.13754,
+      "lon": 121.79997
+    },
+    {
+      "stationId": "7362",
+      "name": "八斗子",
+      "nameEn": "Badouzi",
+      "lat": 25.13528,
+      "lon": 121.80286
+    },
+    {
+      "stationId": "7380",
+      "name": "四腳亭",
+      "nameEn": "Sijiaoting",
+      "lat": 25.10281,
+      "lon": 121.76195
+    },
+    {
+      "stationId": "7390",
+      "name": "暖暖",
+      "nameEn": "Nuannuan",
+      "lat": 25.10231,
+      "lon": 121.74031
+    }
+  ]
+}
