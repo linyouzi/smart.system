@@ -27,6 +27,31 @@ export function addMinutesToTime(timeStr, delayMin) {
   return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
 }
 
+/** Sort key: scheduled departure + delay (minutes from midnight). */
+export function estimatedDepartureMinutes(timeStr, delayMin = 0) {
+  const m = String(timeStr || "").match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return Number.POSITIVE_INFINITY;
+  let h = parseInt(m[1], 10);
+  let min = parseInt(m[2], 10) + (delayMin ?? 0);
+  while (min >= 60) {
+    min -= 60;
+    h += 1;
+  }
+  while (min < 0) {
+    min += 60;
+    h -= 1;
+  }
+  h = ((h % 24) + 24) % 24;
+  return h * 60 + min;
+}
+
+export function compareTrainsByEstimatedDeparture(a, b) {
+  return (
+    estimatedDepartureMinutes(a.scheduledTime, a.delayMin) -
+    estimatedDepartureMinutes(b.scheduledTime, b.delayMin)
+  );
+}
+
 export function platformLabel(platform) {
   if (platform === null || platform === undefined || platform === "" || platform === "—") {
     return t("platformPending");

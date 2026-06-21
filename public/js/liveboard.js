@@ -5,6 +5,7 @@ import { speakTrains, speakChange } from "./tts.js";
 import {
   getDelaySeverity,
   addMinutesToTime,
+  compareTrainsByEstimatedDeparture,
   reassuranceMessage,
   platformLabel,
   statusIcon,
@@ -170,15 +171,15 @@ function renderTrainCard(train, idx, { highlighted = false, context = {} } = {})
 
 function sortTrainsForDisplay(trains, { trainNoFilter = "" } = {}) {
   const list = [...trains];
-  if (trainNoFilter) {
-    const needle = String(trainNoFilter).trim();
-    list.sort((a, b) => {
+  const needle = String(trainNoFilter || "").trim();
+  list.sort((a, b) => {
+    if (needle) {
       const aMatch = String(a.trainNo) === needle ? 0 : 1;
       const bMatch = String(b.trainNo) === needle ? 0 : 1;
       if (aMatch !== bMatch) return aMatch - bMatch;
-      return (a.scheduledTime || "").localeCompare(b.scheduledTime || "");
-    });
-  }
+    }
+    return compareTrainsByEstimatedDeparture(a, b);
+  });
   return list;
 }
 

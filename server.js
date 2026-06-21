@@ -222,6 +222,16 @@ function parseHm(timeStr) {
   return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
 }
 
+function estimatedDepartureMinutes(train) {
+  const mins = parseHm(train.scheduledTime);
+  if (mins == null) return Number.POSITIVE_INFINITY;
+  return mins + (train.delayMin ?? 0);
+}
+
+function compareTrainsByEstimatedDeparture(a, b) {
+  return estimatedDepartureMinutes(a) - estimatedDepartureMinutes(b);
+}
+
 function directionFromTdx(directionVal, lang) {
   const dir = getDirectionMeta(directionVal);
   const en = isEnglish(lang);
@@ -350,7 +360,7 @@ function extractOdScheduleRows(data, originId, lang) {
     }
   }
 
-  return rows.sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+  return rows.sort(compareTrainsByEstimatedDeparture);
 }
 
 function mergeOdWithLive(odRows, liveTrains) {
@@ -528,7 +538,7 @@ async function buildLiveBoardResponse(originId, lang, { destId = "", direction =
   }
 
   liveTrains = filterTrainsByDirection(liveTrains, direction);
-  liveTrains.sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+  liveTrains.sort(compareTrainsByEstimatedDeparture);
 
   return {
     originId,
