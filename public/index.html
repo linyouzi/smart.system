@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#21295c" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="智慧搭乘" />
-<link rel="stylesheet" href="/css/app.css" />
+<link rel="stylesheet" href="/css/app.css?v=3" />
 </head>
 <body>
 
@@ -47,7 +47,7 @@
     <div class="field-label" data-i18n="selectStation">選擇起站</div>
     <div class="row">
       <div class="combobox">
-        <input type="text" id="originInput" autocomplete="off" data-i18n-placeholder="stationPlaceholder" placeholder="輸入站名，如：台北、北車" />
+        <input type="text" id="originInput" autocomplete="off" data-i18n-placeholder="stationPlaceholder" placeholder="輸入站名或站號（如：通霄、2170）" />
         <ul id="originSuggestions" class="suggestions hidden"></ul>
         <input type="hidden" id="originId" />
       </div>
@@ -57,7 +57,7 @@
     <p class="field-hint" data-i18n="destHint">依 TDX 當日時刻表，篩選從起站出發且會停靠此站的列車</p>
     <div class="row">
       <div class="combobox">
-        <input type="text" id="destInput" autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入目的地，如：台北、台中" />
+        <input type="text" id="destInput" autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入目的地（如：通霄、2170）" />
         <ul id="destSuggestions" class="suggestions hidden"></ul>
         <input type="hidden" id="destId" />
       </div>
@@ -112,6 +112,6 @@
   <span data-i18n="footerCredit">2026 軟體專案 </span>
 </footer>
 
-<script type="module" src="/js/app.js"></script>
+<script type="module" src="/js/app.js?v=3"></script>
 </body>
 </html>

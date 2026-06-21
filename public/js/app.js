@@ -174,15 +174,9 @@ async function doSearch() {
   }
 }
 
-const APP_BUILD = "2026-06-20-v2";
-
 async function init() {
   await loadAppConfig();
   await loadLocale(locale);
-
-  // #region agent log
-  fetch('http://127.0.0.1:7368/ingest/0be302a9-cd00-4192-a4f7-1ccb70fba283',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'684877'},body:JSON.stringify({sessionId:'684877',location:'app.js:init',message:'app init',data:{build:APP_BUILD,origin:location.origin,swControlled:!!navigator.serviceWorker?.controller},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
 
   if (isNativeApp()) {
     document.body.classList.add("native-app");
@@ -226,7 +220,7 @@ async function init() {
   });
 
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    navigator.serviceWorker.register("/sw.js").then((reg) => reg.update()).catch(() => {});
   }
 
   modeNormal.addEventListener("click", () => setMode(false));
@@ -328,10 +322,6 @@ async function init() {
     setStatus("statusStationsLoaded", { n: stations.length });
     renderQuickLinks();
     if (searchBtn) searchBtn.disabled = false;
-
-    // #region agent log
-    fetch('http://127.0.0.1:7368/ingest/0be302a9-cd00-4192-a4f7-1ccb70fba283',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'684877'},body:JSON.stringify({sessionId:'684877',location:'app.js:init',message:'stations ready',data:{build:APP_BUILD,count:stations.length,sample:stations.find(s=>s.stationId==='2170')?.name||null,footerText:document.querySelector('[data-i18n=footerCredit]')?.textContent},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
 
     const params = new URLSearchParams(location.search);
     const stationParam = params.get("station");
