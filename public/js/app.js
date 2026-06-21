@@ -1,5 +1,5 @@
 import { loadLocale, t, locale, apiLang } from "./i18n.js";
-import { apiFetch, getApiBase, setApiBase, isNativeApp, loadAppConfig } from "./api.js";
+import { apiFetch, isNativeApp, loadAppConfig } from "./api.js";
 import {
   createCombobox,
   stationLabel,
@@ -47,10 +47,6 @@ const dirAll = document.getElementById("dirAll");
 const dirNorth = document.getElementById("dirNorth");
 const dirSouth = document.getElementById("dirSouth");
 const installBtn = document.getElementById("installBtn");
-const serverPanel = document.getElementById("serverPanel");
-const apiBaseInput = document.getElementById("apiBaseInput");
-const saveServerBtn = document.getElementById("saveServerBtn");
-const testServerBtn = document.getElementById("testServerBtn");
 
 let stations = [];
 let largeMode = false;
@@ -179,32 +175,7 @@ async function init() {
 
   if (isNativeApp()) {
     document.body.classList.add("native-app");
-    if (serverPanel) {
-      serverPanel.open = true;
-    }
-    if (apiBaseInput) apiBaseInput.value = getApiBase();
-  } else if (apiBaseInput && getApiBase()) {
-    apiBaseInput.value = getApiBase();
   }
-
-  saveServerBtn?.addEventListener("click", () => {
-    setApiBase(apiBaseInput?.value || "");
-    setStatus("statusServerSaved", { url: getApiBase() || t("serverSameOrigin") });
-  });
-
-  testServerBtn?.addEventListener("click", async () => {
-    setApiBase(apiBaseInput?.value || "");
-    try {
-      const h = await apiFetch("/api/health").then((r) => r.json());
-      setStatus(
-        h.tdxConfigured ? "statusServerOk" : "statusTdxMissing",
-        {},
-        !h.tdxConfigured
-      );
-    } catch (e) {
-      setStatus("statusServerFail", { msg: e.message }, true);
-    }
-  });
 
   langZh.addEventListener("click", async () => {
     await loadLocale("zh-TW");
