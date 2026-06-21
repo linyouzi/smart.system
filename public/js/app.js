@@ -52,7 +52,6 @@ let stations = [];
 let largeMode = false;
 let travelDirection = "all";
 let originCombo;
-let destCombo;
 let scanning = false;
 let deferredInstallPrompt = null;
 
@@ -135,20 +134,13 @@ async function resolveStationViaServer(combo, inputEl, hiddenEl) {
 
 async function doSearch() {
   const originInput = document.getElementById("originInput");
-  const destInput = document.getElementById("destInput");
   const originHidden = document.getElementById("originId");
-  const destHidden = document.getElementById("destId");
 
   if (!stations.length) {
     setStatus("statusLoadingStations");
   }
 
   const originId = await resolveStationViaServer(originCombo, originInput, originHidden);
-  let destId = destHidden.value;
-  if (destInput.value.trim() && !destId) {
-    destId = await resolveStationViaServer(destCombo, destInput, destHidden);
-  }
-
   const originText = originInput.value.trim();
 
   if (!originId) {
@@ -165,13 +157,10 @@ async function doSearch() {
   setStatus("statusSearching");
   resultsEl.innerHTML = `<div class="empty-state">${t("loading")}</div>`;
 
-  const destStation = destId ? stations.find((s) => s.stationId === destId) : null;
-  const destName = destStation ? stationLabel(destStation, locale) : "";
-
   try {
     const data = await fetchLiveData(
       originId,
-      destId || null,
+      null,
       apiLang(),
       travelDirection
     );
@@ -179,7 +168,7 @@ async function doSearch() {
     handleSearchResult(data, {
       resultsEl,
       statusEl,
-      destName,
+      destName: "",
     });
 
     addRecent(originId);
@@ -189,7 +178,7 @@ async function doSearch() {
 
     startPolling(
       () =>
-        fetchLiveData(originId, destId || null, apiLang(), travelDirection),
+        fetchLiveData(originId, null, apiLang(), travelDirection),
       (pollData, changes) => {
         renderResults(pollData.trains, resultsEl, { routeMode: pollData.routeMode });
       }
@@ -334,15 +323,6 @@ async function init() {
       inputEl: document.getElementById("originInput"),
       listEl: document.getElementById("originSuggestions"),
       hiddenEl: document.getElementById("originId"),
-      stations,
-      localeGetter: () => locale,
-      getBrowseContext: browseContext,
-    });
-
-    destCombo = createCombobox({
-      inputEl: document.getElementById("destInput"),
-      listEl: document.getElementById("destSuggestions"),
-      hiddenEl: document.getElementById("destId"),
       stations,
       localeGetter: () => locale,
       getBrowseContext: browseContext,
