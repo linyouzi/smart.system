@@ -52,15 +52,6 @@
       </div>
     </div>
 
-    <div class="field-label"><span data-i18n="selectDestination">抵達站</span> <span class="required">*</span></div>
-    <div class="row">
-      <div class="combobox">
-        <input type="text" id="destInput" required autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入抵達站（如：花蓮、6000）" />
-        <ul id="destSuggestions" class="suggestions hidden"></ul>
-        <input type="hidden" id="destId" />
-      </div>
-    </div>
-
     <div class="row search-row">
       <button class="primary" id="searchBtn" data-i18n="search">查詢班次</button>
       <button class="secondary" id="favBtn" data-i18n="addFavorite">加入常用</button>
@@ -107,7 +98,7 @@
   <section class="panel" id="resultPanel">
     <h2><span class="dot"></span><span id="resultTitle" data-i18n="liveboardTitle">即時到離站看板</span></h2>
     <div id="results">
-      <div class="empty-state" data-i18n="emptyPrompt">請填寫出發站與抵達站，即可查詢會停靠的即時班次。</div>
+      <div class="empty-state" data-i18n="emptyPrompt">請選擇出發站並查詢，即可看到真實的 TDX 即時班次與月台資訊。</div>
     </div>
   </section>
 
@@ -118,6 +109,6 @@
   <span data-i18n="footerCredit">2026 軟體專案 </span>
 </footer>
 
-<script type="module" src="/js/app.js?v=8"></script>
+<script type="module" src="/js/app.js?v=9"></script>
 </body>
 </html>

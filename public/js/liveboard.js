@@ -183,6 +183,9 @@ function sortTrainsForDisplay(trains, { trainNoFilter = "" } = {}) {
 }
 
 function emptyRouteMessage(meta = {}) {
+  if (!meta.routeMode) {
+    return t("emptyLive");
+  }
   if (meta.odCount === 0 && meta.odOk === false) {
     return t("emptyOdFail");
   }
@@ -225,9 +228,10 @@ export function renderResults(
 
 export async function fetchLiveData(originId, destId, apiLang, direction = "all") {
   currentOriginId = originId;
-  currentDestId = destId;
+  currentDestId = destId || null;
 
-  const params = new URLSearchParams({ lang: apiLang, direction, destId });
+  const params = new URLSearchParams({ lang: apiLang, direction });
+  if (destId) params.set("destId", destId);
 
   const res = await apiFetch(`/api/search/${originId}?${params.toString()}`);
   const data = await res.json();
@@ -245,6 +249,15 @@ export function setQueryLabels({ originName = "", destName = "" } = {}) {
   currentDestName = destName;
 }
 
+function updateStatusMessage(statusEl, meta, trainCount) {
+  const dest = meta.destName || currentDestName;
+  const odNote = meta.odCount ? ` · ${t("statusOdTrains", { n: meta.odCount })}` : "";
+  statusEl.textContent = meta.routeMode && dest
+    ? `${t("statusRouteUpdated", { n: meta.matched ?? trainCount, dest })}${odNote} · ${t("statusPoll")}`
+    : `${t("statusUpdated", { n: meta.matched ?? trainCount })} · ${t("statusPoll")}`;
+  statusEl.classList.remove("error");
+}
+
 export function applyPollUpdate(
   pollData,
   { resultsEl, statusEl, resultTitleEl, trainNoFilter = "", destName = "" }
@@ -253,8 +266,11 @@ export function applyPollUpdate(
   const originName = meta.originName || currentOriginName;
   const dest = meta.destName || destName || currentDestName;
 
-  if (resultTitleEl && originName && dest) {
-    resultTitleEl.textContent = formatRouteTitle(originName, dest);
+  if (resultTitleEl) {
+    resultTitleEl.textContent =
+      meta.routeMode && originName && dest
+        ? formatRouteTitle(originName, dest)
+        : t("liveboardTitle");
   }
 
   renderResults(trains, resultsEl, {
@@ -265,12 +281,7 @@ export function applyPollUpdate(
     meta,
   });
 
-  const odNote = meta.odCount ? ` · ${t("statusOdTrains", { n: meta.odCount })}` : "";
-  statusEl.textContent = `${t("statusRouteUpdated", {
-    n: meta.matched ?? trains.length,
-    dest,
-  })}${odNote} · ${t("statusPoll")}`;
-  statusEl.classList.remove("error");
+  updateStatusMessage(statusEl, meta, trains.length);
 }
 
 export function formatRouteTitle(originName, destName) {
@@ -293,12 +304,7 @@ export function handleSearchResult(data, { resultsEl, statusEl, destName, trainN
     meta,
   });
 
-  const odNote = meta.odCount ? ` · ${t("statusOdTrains", { n: meta.odCount })}` : "";
-  statusEl.textContent = `${t("statusRouteUpdated", {
-    n: meta.matched ?? trains.length,
-    dest,
-  })}${odNote} · ${t("statusPoll")}`;
-  statusEl.classList.remove("error");
+  updateStatusMessage(statusEl, meta, trains.length);
 
   if (isFirstLoad) {
     speakTrains(trains.filter((tr) => tr.liveStatus === "live"));
