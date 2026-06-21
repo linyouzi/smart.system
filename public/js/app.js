@@ -198,6 +198,7 @@ async function doSearch() {
     trainNoFilter,
     originName: originLabel,
     destName: destLabel,
+    originId,
   };
 
   try {
@@ -222,6 +223,8 @@ async function doSearch() {
           trainNoFilter,
           originName: renderOpts.originName,
           destName: renderOpts.destName,
+          originId,
+          meta: pollData.meta,
         });
       }
     );

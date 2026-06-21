@@ -490,6 +490,26 @@ button.secondary {
   flex-shrink: 0;
 }
 
+.alt-transport-block {
+  margin-bottom: 14px;
+  border: 1px solid #f5c6c6;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff5f5;
+}
+.alt-block-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #8a1f1a;
+  padding: 10px 14px 4px;
+}
+.alt-city-hint {
+  font-size: 12px;
+  color: #9a4a00;
+  padding: 0 14px 8px;
+  line-height: 1.45;
+}
+
 .alt-suggest {
   display: flex;
   align-items: center;
@@ -530,6 +550,19 @@ button.secondary {
   text-decoration: none;
 }
 .alt-chip:hover { background: #fde8e8; }
+
+.live-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.live-tag.live { background: #e3f5ec; color: #1d7a4c; }
+.live-tag.schedule { background: #eef3f5; color: var(--gray); }
+.train-card.timetable-only { opacity: 0.92; }
 
 .guide-btn {
   width: 100%;

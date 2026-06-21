@@ -1,7 +1,8 @@
 import { t } from "./i18n.js";
 
 /** @returns {'ok'|'moderate'|'severe'} */
-export function getDelaySeverity(delayMin) {
+export function getDelaySeverity(delayMin, { liveStatus = "live" } = {}) {
+  if (liveStatus === "timetable") return "ok";
   const d = delayMin ?? 0;
   if (d < 5) return "ok";
   if (d <= 20) return "moderate";
@@ -34,9 +35,10 @@ export function platformLabel(platform) {
 }
 
 export function reassuranceMessage(train) {
-  const severity = getDelaySeverity(train.delayMin);
+  const severity = getDelaySeverity(train.delayMin, { liveStatus: train.liveStatus });
   const platform = platformLabel(train.platform);
 
+  if (train.liveStatus === "timetable") return t("reassuranceTimetable");
   if (severity === "ok") return t("reassuranceOk");
   if (severity === "moderate") {
     if (train.platform === null || train.platform === undefined || train.platform === "") {
@@ -51,31 +53,4 @@ export function statusIcon(severity) {
   if (severity === "ok") return "✓";
   if (severity === "moderate") return "◷";
   return "⚠";
-}
-
-const ALT_LINKS = {
-  thsr: "https://www.thsr.com.tw/",
-  bus: "https://www.highway.gov.tw/",
-  tour: "https://www.taiwantrip.com.tw/",
-};
-
-export function buildAltTransportLinks({ originName = "", destName = "" } = {}) {
-  const origin = encodeURIComponent(originName || "Taiwan");
-  const dest = encodeURIComponent(destName || "");
-  const mapsQuery =
-    destName && originName
-      ? `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=transit`
-      : `https://www.google.com/maps/search/?api=1&query=${origin}+public+transport`;
-
-  return [
-    { key: "altMaps", href: mapsQuery },
-    { key: "altThsr", href: ALT_LINKS.thsr },
-    { key: "altBus", href: ALT_LINKS.bus },
-    { key: "altTour", href: ALT_LINKS.tour },
-  ];
-}
-
-export function primaryAltLink(context) {
-  const links = buildAltTransportLinks(context);
-  return links[1] || links[0];
 }

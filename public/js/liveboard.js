@@ -6,11 +6,10 @@ import {
   getDelaySeverity,
   addMinutesToTime,
   reassuranceMessage,
-  buildAltTransportLinks,
   platformLabel,
   statusIcon,
-  primaryAltLink,
 } from "./delay-ui.js";
+import { renderAltTransportBlock } from "./alt-transport.js";
 import { renderCarLayout } from "./car-layout.js";
 
 let pollTimer = null;
@@ -67,7 +66,16 @@ export function startPolling(fetchFn, onUpdate) {
 }
 
 function renderDelayBadge(train) {
-  const severity = getDelaySeverity(train.delayMin);
+  const severity = getDelaySeverity(train.delayMin, { liveStatus: train.liveStatus });
+
+  if (train.liveStatus === "timetable") {
+    return `
+      <div class="delay-badge severity-ok">
+        <span class="delay-badge-ontime">${t("delayPending")}</span>
+      </div>
+    `;
+  }
+
   if (train.delayMin > 0) {
     return `
       <div class="delay-badge severity-${severity}">
@@ -77,6 +85,7 @@ function renderDelayBadge(train) {
       </div>
     `;
   }
+
   return `
     <div class="delay-badge severity-${severity}">
       <span class="delay-badge-ontime">${t("onTimeBadge")}</span>
@@ -85,7 +94,7 @@ function renderDelayBadge(train) {
 }
 
 function renderStatusBar(train) {
-  const severity = getDelaySeverity(train.delayMin);
+  const severity = getDelaySeverity(train.delayMin, { liveStatus: train.liveStatus });
   return `
     <div class="status-bar severity-${severity}">
       <span class="status-icon" aria-hidden="true">${statusIcon(severity)}</span>
@@ -95,32 +104,22 @@ function renderStatusBar(train) {
 }
 
 function renderAltSuggest(train, context) {
-  if (getDelaySeverity(train.delayMin) !== "severe") return "";
-  const alt = primaryAltLink(context);
-  const links = buildAltTransportLinks(context);
-  const chips = links
-    .map(
-      (l) =>
-        `<a class="alt-chip" href="${l.href}" target="_blank" rel="noopener noreferrer">${t(l.key)}</a>`
-    )
-    .join("");
-
-  return `
-    <a class="alt-suggest" href="${alt.href}" target="_blank" rel="noopener noreferrer">
-      <span class="alt-suggest-icon" aria-hidden="true">🚌</span>
-      <span class="alt-suggest-text">${t("altSuggestion", { origin: context.originName, dest: context.destName })}</span>
-      <span class="alt-chevron" aria-hidden="true">›</span>
-    </a>
-    <div class="alt-chips">${chips}</div>
-  `;
+  if (getDelaySeverity(train.delayMin, { liveStatus: train.liveStatus }) !== "severe") return "";
+  return renderAltTransportBlock(context);
 }
 
 function renderTrainCard(train, idx, { highlighted = false, context = {} } = {}) {
-  const severity = getDelaySeverity(train.delayMin);
+  const severity = getDelaySeverity(train.delayMin, { liveStatus: train.liveStatus });
   const estimated = addMinutesToTime(train.scheduledTime, train.delayMin) || train.scheduledTime;
   const platform = platformLabel(train.platform);
   const cardClasses = ["train-card", `card-${severity}`];
   if (highlighted) cardClasses.push("highlighted");
+  if (train.liveStatus === "timetable") cardClasses.push("timetable-only");
+
+  const liveTag =
+    train.liveStatus === "live"
+      ? `<span class="live-tag live">${t("liveTag")}</span>`
+      : `<span class="live-tag schedule">${t("scheduleTag")}</span>`;
 
   return `
     <div class="${cardClasses.join(" ")}" data-train-no="${train.trainNo}">
@@ -130,7 +129,7 @@ function renderTrainCard(train, idx, { highlighted = false, context = {} } = {})
           <div class="route-line">${t("routeLine", {
             origin: context.originName || "—",
             dest: context.destName || train.endingStation || "—",
-          })}</div>
+          })} ${liveTag}</div>
           <div class="train-platform">${t("trainPlatformLine", {
             no: train.trainNo,
             platform,
@@ -138,7 +137,7 @@ function renderTrainCard(train, idx, { highlighted = false, context = {} } = {})
           <div class="time-line">
             <span class="est-time">${t("estimatedAt", { time: estimated || "--:--" })}</span>
             ${
-              train.scheduledTime && train.delayMin > 0
+              train.liveStatus === "live" && train.scheduledTime && train.delayMin > 0
                 ? `<span class="sched-time">${train.scheduledTime}</span>`
                 : ""
             }
@@ -170,22 +169,32 @@ function sortTrainsForDisplay(trains, { trainNoFilter = "" } = {}) {
   return list;
 }
 
+function emptyRouteMessage(meta = {}) {
+  if (meta.odCount === 0 && meta.odOk === false) {
+    return t("emptyOdFail");
+  }
+  if (meta.totalLive > 0 && meta.matched === 0) {
+    return t("emptyRouteFiltered");
+  }
+  return t("emptyRoute");
+}
+
 export function renderResults(
   trains,
   resultsEl,
-  { trainNoFilter = "", originName = "", destName = "" } = {}
+  { trainNoFilter = "", originName = "", destName = "", originId = "", meta = {} } = {}
 ) {
   if (!trains.length) {
-    resultsEl.innerHTML = `<div class="empty-state">${t("emptyRoute")}</div>`;
+    resultsEl.innerHTML = `<div class="empty-state">${emptyRouteMessage(meta)}</div>`;
     return;
   }
 
-  const context = { originName, destName };
+  const context = { originName, destName, originId };
   const sorted = sortTrainsForDisplay(trains, { trainNoFilter });
   const needle = String(trainNoFilter || "").trim();
 
   resultsEl.innerHTML = sorted
-    .slice(0, 12)
+    .slice(0, 20)
     .map((train, idx) =>
       renderTrainCard(train, idx, {
         highlighted: needle && String(train.trainNo) === needle,
@@ -233,18 +242,21 @@ export function handleSearchResult(data, { resultsEl, statusEl, destName, trainN
 
   renderResults(trains, resultsEl, {
     trainNoFilter,
-    originName: currentOriginName,
+    originName: meta.originName || currentOriginName,
     destName: dest,
+    originId: meta.originId || currentOriginId,
+    meta,
   });
 
+  const odNote = meta.odCount ? ` · ${t("statusOdTrains", { n: meta.odCount })}` : "";
   statusEl.textContent = `${t("statusRouteUpdated", {
     n: meta.matched ?? trains.length,
     dest,
-  })} · ${t("statusPoll")}`;
+  })}${odNote} · ${t("statusPoll")}`;
   statusEl.classList.remove("error");
 
   if (isFirstLoad) {
-    speakTrains(trains);
+    speakTrains(trains.filter((tr) => tr.liveStatus === "live"));
     onFirstSpeak?.();
     isFirstLoad = false;
   }

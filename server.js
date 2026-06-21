@@ -199,11 +199,34 @@ function parseQuery(url) {
 }
 
 function todayIso() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei" }).format(new Date());
+}
+
+function nowMinutesTaiwan() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Taipei",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  const hour = parseInt(parts.find((p) => p.type === "hour")?.value || "0", 10);
+  const minute = parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10);
+  return hour * 60 + minute;
+}
+
+function parseHm(timeStr) {
+  const m = String(timeStr || "").match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+}
+
+function directionFromTdx(directionVal, lang) {
+  const dir = getDirectionMeta(directionVal);
+  const en = isEnglish(lang);
+  return {
+    directionType: dir.type,
+    directionLabel: en ? dir.labelEn : dir.labelZh,
+  };
 }
 
 function isEnglish(lang) {
@@ -262,6 +285,102 @@ function extractTrainNosFromTimetable(data) {
   return trainNos;
 }
 
+function extractOdScheduleRows(data, originId, lang) {
+  const rows = [];
+  const seen = new Set();
+  const originIdStr = String(originId);
+  const list = Array.isArray(data) ? data : data ? [data] : [];
+
+  for (const item of list) {
+    if (!item || typeof item !== "object") continue;
+
+    const bundles = [];
+    const nested = item.TrainTimetables || item.TrainTimeTables;
+    if (Array.isArray(nested) && nested.length) {
+      for (const tt of nested) bundles.push({ outer: item, tt });
+    } else {
+      bundles.push({ outer: item, tt: item });
+    }
+
+    for (const { outer, tt } of bundles) {
+      const trainNo = String(tt.TrainNo || outer.TrainNo || "");
+      if (!trainNo || seen.has(trainNo)) continue;
+
+      let scheduledTime = "";
+      const stops = tt.StopTimes || tt.StationTimes || tt.Timetables || [];
+      for (const stop of stops) {
+        const sid = String(stop.StationID || stop.StationId || "");
+        if (sid === originIdStr) {
+          scheduledTime = String(stop.DepartureTime || stop.ArrivalTime || "").slice(0, 5);
+          break;
+        }
+      }
+      if (!scheduledTime) {
+        scheduledTime = String(
+          tt.DepartureTime || outer.DepartureTime || tt.ArrivalTime || outer.ArrivalTime || ""
+        ).slice(0, 5);
+      }
+
+      const en = isEnglish(lang);
+      const dir = directionFromTdx(tt.Direction ?? outer.Direction, lang);
+      seen.add(trainNo);
+      rows.push({
+        trainNo,
+        scheduledTime,
+        direction: tt.Direction ?? outer.Direction,
+        directionType: dir.directionType,
+        directionLabel: dir.directionLabel,
+        endingStation: en
+          ? tt.EndingStationName?.En ||
+            outer.EndingStationName?.En ||
+            tt.EndingStationName?.Zh_tw ||
+            outer.EndingStationName?.Zh_tw ||
+            ""
+          : tt.EndingStationName?.Zh_tw || outer.EndingStationName?.Zh_tw || "",
+        trainTypeName: en
+          ? tt.TrainTypeName?.En ||
+            outer.TrainTypeName?.En ||
+            tt.TrainTypeName?.Zh_tw ||
+            outer.TrainTypeName?.Zh_tw ||
+            ""
+          : tt.TrainTypeName?.Zh_tw || outer.TrainTypeName?.Zh_tw || "",
+      });
+    }
+  }
+
+  return rows.sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+}
+
+function mergeOdWithLive(odRows, liveTrains) {
+  const liveMap = new Map(liveTrains.map((t) => [String(t.trainNo), t]));
+  const nowMin = nowMinutesTaiwan();
+
+  return odRows
+    .map((od) => {
+      const live = liveMap.get(String(od.trainNo));
+      if (live) {
+        return {
+          ...live,
+          scheduledTime: live.scheduledTime || od.scheduledTime,
+          endingStation: live.endingStation || od.endingStation,
+          trainTypeName: live.trainTypeName || od.trainTypeName,
+          liveStatus: "live",
+        };
+      }
+      return {
+        ...od,
+        platform: null,
+        delayMin: 0,
+        liveStatus: "timetable",
+      };
+    })
+    .filter((t) => {
+      const mins = parseHm(t.scheduledTime);
+      if (mins == null) return true;
+      return mins + (t.delayMin || 0) >= nowMin - 3;
+    });
+}
+
 let stationsCache = null;
 let stationsCacheAt = 0;
 const STATIONS_FALLBACK_PATH = path.join(__dirname, "public", "data", "tra-stations.json");
@@ -318,7 +437,29 @@ async function getStationNameZh(stationId) {
   return s?.StationName?.Zh_tw || "";
 }
 
+async function fetchOdSchedule(originId, destId, lang) {
+  const date = todayIso();
+  const paths = [
+    `/v3/Rail/TRA/DailyTrainTimetable/OD/${originId}/to/${destId}/${date}?$format=JSON`,
+    `/v2/Rail/TRA/DailyTrainTimetable/OD/${originId}/to/${destId}/${date}?$format=JSON`,
+  ];
+  for (const apiPath of paths) {
+    try {
+      const raw = await callTdx(apiPath);
+      const list = unwrapTdxList(raw);
+      let rows = extractOdScheduleRows(list, originId, lang);
+      if (!rows.length) rows = extractOdScheduleRows(raw, originId, lang);
+      if (rows.length) return { rows, odOk: true, date };
+    } catch (err) {
+      console.warn("OD timetable failed:", apiPath, err.message);
+    }
+  }
+  return { rows: [], odOk: false, date };
+}
+
 async function fetchOdTrainNos(originId, destId) {
+  const { rows, odOk } = await fetchOdSchedule(originId, destId, "zh-TW");
+  if (rows.length) return new Set(rows.map((r) => r.trainNo));
   const date = todayIso();
   const paths = [
     `/v3/Rail/TRA/DailyTrainTimetable/OD/${originId}/to/${destId}/${date}?$format=JSON`,
@@ -352,30 +493,48 @@ function filterTrainsByDirection(trains, direction) {
 
 async function buildLiveBoardResponse(originId, lang, { destId = "", direction = "all" } = {}) {
   const raw = await callTdx(`/v2/Rail/TRA/LiveBoard/Station/${originId}?$format=JSON`);
-  let trains = unwrapTdxList(raw).map((t) => simplifyLiveBoardRow(t, lang));
-  const totalLive = trains.length;
+  let liveTrains = unwrapTdxList(raw).map((t) => ({
+    ...simplifyLiveBoardRow(t, lang),
+    liveStatus: "live",
+  }));
+  const totalLive = liveTrains.length;
 
+  const originName = await getStationNameZh(originId);
   let destName = "";
   let routeMode = false;
+  let odOk = false;
+  let odCount = 0;
+
   if (destId) {
     routeMode = true;
     destName = await getStationNameZh(destId);
-    const allowedTrainNos = await fetchOdTrainNos(originId, destId);
-    trains = filterTrainsByDest(trains, destName, allowedTrainNos);
+    const { rows: odRows, odOk: ok } = await fetchOdSchedule(originId, destId, lang);
+    odOk = ok;
+    odCount = odRows.length;
+
+    if (odRows.length) {
+      liveTrains = mergeOdWithLive(odRows, liveTrains);
+    } else {
+      const allowedTrainNos = await fetchOdTrainNos(originId, destId);
+      liveTrains = filterTrainsByDest(liveTrains, destName, allowedTrainNos);
+    }
   }
 
-  trains = filterTrainsByDirection(trains, direction);
-  trains.sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+  liveTrains = filterTrainsByDirection(liveTrains, direction);
+  liveTrains.sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
 
   return {
     originId,
+    originName,
     destId: destId || null,
     destName,
     direction,
     routeMode,
-    trains,
+    trains: liveTrains,
     totalLive,
-    matched: trains.length,
+    matched: liveTrains.length,
+    odOk,
+    odCount,
   };
 }
 
