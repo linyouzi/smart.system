@@ -1,5 +1,32 @@
 import { t } from "./i18n.js";
 
+/** 官方／常用查詢連結 */
+const OFFICIAL_LINKS = {
+  thsr: {
+    /** 高鐵時刻表與票價查詢（官方） */
+    timetable: "https://www.thsr.com.tw/ArticleContent/a3b630bb-1066-4352-a1ef-58c7b4e8ef7c",
+    /** 高鐵網路訂票 */
+    booking: "https://irs.thsrc.com.tw/IMINT/",
+    home: "https://www.thsr.com.tw/",
+  },
+  bus: {
+    /** 公路客運：以起訖地區搜尋 */
+    areaQuery: "https://www.taiwanbus.tw/eBUSPage/Query/AreaQuery.aspx?lan=C",
+    /** 公路客運：路線編號或站牌搜尋 */
+    routeQuery: "https://www.taiwanbus.tw/eBUSPage/Query/RouteQuery.aspx?lan=C",
+    /** 公路客運：以客運業者搜尋 */
+    operatorQuery: "https://www.taiwanbus.tw/eBUSPage/Query/CustomerQuery.aspx?lan=C",
+    home: "https://www.taiwanbus.tw/eBUSPage/default.aspx?lan=C",
+    /** 花蓮縣政府：公車時刻表彙整 */
+    hualienTimetable: "https://traffic.hl.gov.tw/Bus/BusTimeTable",
+    /** 國道／公路客運資訊入口（交通部公路局） */
+    highwayGov: "https://www.highway.gov.tw/",
+  },
+  tour: {
+    home: "https://www.taiwantrip.com.tw/",
+  },
+};
+
 /** 主要 TRA 車站 → 城市（用於替代交通建議） */
 const STATION_CITY = {
   "1000": "taipei",
@@ -18,42 +45,18 @@ const STATION_CITY = {
 };
 
 const CITY_PROFILE = {
-  taipei: {
-    hintKey: "altHintTaipei",
-    thsr: "https://www.thsr.com.tw/",
-    bus: "https://www.highway.gov.tw/",
-    tour: "https://www.taiwantrip.com.tw/",
-  },
-  tainan: {
-    hintKey: "altHintTainan",
-    thsr: "https://www.thsr.com.tw/",
-    bus: "https://www.highway.gov.tw/",
-    tour: "https://www.taiwantrip.com.tw/",
-  },
-  taichung: {
-    hintKey: "altHintTaichung",
-    thsr: "https://www.thsr.com.tw/",
-    bus: "https://www.highway.gov.tw/",
-    tour: "https://www.taiwantrip.com.tw/",
-  },
-  kaohsiung: {
-    hintKey: "altHintKaohsiung",
-    thsr: "https://www.thsr.com.tw/",
-    bus: "https://www.highway.gov.tw/",
-    tour: "https://www.taiwantrip.com.tw/",
-  },
-  hualien: {
-    hintKey: "altHintHualien",
-    thsr: "https://www.thsr.com.tw/",
-    bus: "https://www.taiwantrip.com.tw/",
-    tour: "https://www.taiwantrip.com.tw/",
-  },
-  default: {
-    hintKey: "altHintDefault",
-    thsr: "https://www.thsr.com.tw/",
-    bus: "https://www.highway.gov.tw/",
-    tour: "https://www.taiwantrip.com.tw/",
-  },
+  taipei: { hintKey: "altHintTaipei" },
+  tainan: { hintKey: "altHintTainan" },
+  taichung: { hintKey: "altHintTaichung" },
+  kaohsiung: { hintKey: "altHintKaohsiung" },
+  hualien: { hintKey: "altHintHualien" },
+  default: { hintKey: "altHintDefault" },
+};
+
+/** 各城市推薦的公路客運查詢入口 */
+const CITY_BUS_LINK = {
+  hualien: OFFICIAL_LINKS.bus.hualienTimetable,
+  default: OFFICIAL_LINKS.bus.areaQuery,
 };
 
 const ALT_PLAN_DEFS = [
@@ -119,6 +122,26 @@ export function getCityHint(originId) {
   return t(profile.hintKey);
 }
 
+function buildThsrUrl() {
+  return OFFICIAL_LINKS.thsr.timetable;
+}
+
+function buildBusUrl(originId) {
+  const city = getCityKey(originId);
+  return CITY_BUS_LINK[city] || CITY_BUS_LINK.default;
+}
+
+function buildTourUrl() {
+  return OFFICIAL_LINKS.tour.home;
+}
+
+function resolvePlanHref(def, context) {
+  if (def.hrefKey === "thsr") return buildThsrUrl(context);
+  if (def.hrefKey === "bus") return buildBusUrl(context.originId);
+  if (def.hrefKey === "tour") return buildTourUrl();
+  return OFFICIAL_LINKS.tour.home;
+}
+
 function buildMapsUrl({ originName = "", destName = "" } = {}) {
   const origin = encodeURIComponent(originName || "Taiwan");
   const dest = encodeURIComponent(destName || "");
@@ -129,13 +152,12 @@ function buildMapsUrl({ originName = "", destName = "" } = {}) {
 }
 
 export function buildAltTransportLinks(context = {}) {
-  const profile = getProfile(context.originId);
   const mapsQuery = buildMapsUrl(context);
 
   return [
-    { key: "altThsr", href: profile.thsr },
-    { key: "altBus", href: profile.bus },
-    { key: "altTour", href: profile.tour },
+    { key: "altThsr", href: buildThsrUrl(context) },
+    { key: "altBus", href: buildBusUrl(context.originId) },
+    { key: "altTour", href: buildTourUrl() },
     { key: "altMaps", href: mapsQuery },
   ];
 }
@@ -147,15 +169,13 @@ function resolvePlanTags(planDef, originId) {
 }
 
 function buildAltPlans(context) {
-  const profile = getProfile(context.originId);
-
   return ALT_PLAN_DEFS.map((def) => {
     const tags = resolvePlanTags(def, context.originId);
     return {
       id: def.id,
       icon: def.icon,
       title: t(def.titleKey),
-      href: profile[def.hrefKey],
+      href: resolvePlanHref(def, context),
       tags,
       tagCount: tags.length,
       tieOrder: def.tieOrder,
