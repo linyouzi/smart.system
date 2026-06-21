@@ -404,7 +404,11 @@ function serveStatic(req, res) {
       return res.end("404 Not Found");
     }
     const ext = path.extname(filePath);
-    res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
+    const headers = { "Content-Type": MIME[ext] || "application/octet-stream" };
+    if (/\.(html?|js|css|json|webmanifest)$/.test(ext) || filePath.endsWith("sw.js")) {
+      headers["Cache-Control"] = "no-cache, must-revalidate";
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 }
@@ -413,6 +417,74 @@ async function handleStations(req, res) {
   try {
     const simplified = await loadAllStations();
     sendJson(res, 200, simplified);
+  } catch (err) {
+    console.error(err);
+    sendJson(res, 500, { error: err.message });
+  }
+}
+
+function normalizeStationQuery(text) {
+  return (text || "").replace(/\s/g, "").replace(/台/g, "臺").toLowerCase();
+}
+
+function stripStationSuffixQuery(text) {
+  let s = normalizeStationQuery(text);
+  s = s.replace(/火車站$/, "");
+  s = s.replace(/車站$/, "");
+  s = s.replace(/站$/, "");
+  return s;
+}
+
+function stationQueryVariants(query) {
+  const base = normalizeStationQuery(query);
+  const stripped = stripStationSuffixQuery(query);
+  const variants = new Set([base]);
+  if (stripped) variants.add(stripped);
+  if (/^\d{3,4}$/.test(stripped || base)) variants.add(stripped || base);
+  return [...variants];
+}
+
+function scoreStationQuery(station, query) {
+  const names = [normalizeStationQuery(station.name), normalizeStationQuery(station.nameEn)].filter(
+    Boolean
+  );
+  const id = String(station.stationId || "");
+  let best = 0;
+  for (const q of stationQueryVariants(query)) {
+    if (!q) continue;
+    if (id && id === q) best = Math.max(best, 100);
+    for (const name of names) {
+      if (name === q) best = Math.max(best, 100);
+      else if (name.startsWith(q) || q.startsWith(name)) best = Math.max(best, 90);
+      else if (name.includes(q) || q.includes(name)) best = Math.max(best, 70);
+    }
+  }
+  return best;
+}
+
+async function handleStationMatch(req, res, query) {
+  try {
+    const q = (query.q || "").trim();
+    if (!q) return sendJson(res, 400, { error: "missing q" });
+
+    const all = await loadAllStations();
+    const ranked = all
+      .map((s) => ({ s, score: scoreStationQuery(s, q) }))
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score || (a.s.name || "").localeCompare(b.s.name || "", "zh-Hant"));
+
+    if (!ranked.length) return sendJson(res, 200, { match: null, matches: [] });
+
+    const top = ranked[0];
+    const second = ranked[1];
+    if (ranked.length === 1 || (top.score >= 70 && (!second || top.score > second.score))) {
+      return sendJson(res, 200, { match: top.s, score: top.score });
+    }
+
+    return sendJson(res, 200, {
+      match: null,
+      matches: ranked.slice(0, 8).map((x) => x.s),
+    });
   } catch (err) {
     console.error(err);
     sendJson(res, 500, { error: err.message });
@@ -530,6 +602,7 @@ const server = http.createServer((req, res) => {
     return res.end();
   }
   if (url === "/api/stations") return handleStations(req, res);
+  if (url === "/api/stations/match") return handleStationMatch(req, res, query);
 
   const liveboardMatch = url.match(/^\/api\/liveboard\/([^/]+)$/);
   if (liveboardMatch) return handleLiveBoard(req, res, liveboardMatch[1], lang, query);

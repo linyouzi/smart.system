@@ -109,18 +109,47 @@ function renderQuickLinks() {
   });
 }
 
+async function resolveStationViaServer(combo, inputEl, hiddenEl) {
+  combo?.resolveInput();
+  if (hiddenEl.value) return hiddenEl.value;
+
+  const text = inputEl.value.trim();
+  if (!text) return "";
+
+  try {
+    const res = await apiFetch(`/api/stations/match?q=${encodeURIComponent(text)}`);
+    const data = await res.json();
+    if (data.match?.stationId) {
+      if (combo?.pickById) combo.pickById(data.match.stationId);
+      else {
+        hiddenEl.value = data.match.stationId;
+        inputEl.value = data.match.name || text;
+      }
+      return String(data.match.stationId);
+    }
+  } catch (err) {
+    console.error("station match failed", err);
+  }
+  return hiddenEl.value;
+}
+
 async function doSearch() {
+  const originInput = document.getElementById("originInput");
+  const destInput = document.getElementById("destInput");
+  const originHidden = document.getElementById("originId");
+  const destHidden = document.getElementById("destId");
+
   if (!stations.length) {
-    setStatus("statusLoadingStations", {}, true);
-    return;
+    setStatus("statusLoadingStations");
   }
 
-  originCombo?.resolveInput();
-  destCombo?.resolveInput();
+  const originId = await resolveStationViaServer(originCombo, originInput, originHidden);
+  let destId = destHidden.value;
+  if (destInput.value.trim() && !destId) {
+    destId = await resolveStationViaServer(destCombo, destInput, destHidden);
+  }
 
-  const originId = document.getElementById("originId").value;
-  const destId = document.getElementById("destId").value;
-  const originText = document.getElementById("originInput").value.trim();
+  const originText = originInput.value.trim();
 
   if (!originId) {
     if (originText) {
