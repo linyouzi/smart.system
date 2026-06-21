@@ -2,11 +2,21 @@ import { t } from "./i18n.js";
 import { apiFetch } from "./api.js";
 import { showChangeAlert } from "./notify.js";
 import { speakTrains, speakChange } from "./tts.js";
+import {
+  getDelaySeverity,
+  addMinutesToTime,
+  reassuranceMessage,
+  buildAltTransportLinks,
+  platformLabel,
+} from "./delay-ui.js";
+import { renderCarLayout } from "./car-layout.js";
 
 let pollTimer = null;
 let lastSnapshot = new Map();
 let currentOriginId = null;
 let currentDestId = null;
+let currentOriginName = "";
+let currentDestName = "";
 let isFirstLoad = true;
 
 function trainKey(t) {
@@ -54,21 +64,112 @@ export function startPolling(fetchFn, onUpdate) {
   }, 30_000);
 }
 
-export function renderCarLayout(trainNo) {
-  const carCount = 8 + (parseInt(trainNo, 10) % 4);
-  const highlightIdx = parseInt(trainNo, 10) % carCount;
-  let html = '<div class="cars">';
-  for (let i = 0; i < carCount; i++) {
-    const isHighlight = i === highlightIdx;
-    html += `<div class="car ${isHighlight ? "highlight" : ""}">${i + 1}${
-      isHighlight ? '<div class="door"></div>' : ""
-    }</div>`;
-  }
-  html += "</div>";
-  return html;
+function renderDelayBlock(train) {
+  const severity = getDelaySeverity(train.delayMin);
+  const estimated = addMinutesToTime(train.scheduledTime, train.delayMin) || train.scheduledTime;
+  const delayDisplay =
+    train.delayMin > 0 ? t("delayPlus", { n: train.delayMin }) : t("onTime");
+
+  return `
+    <div class="delay-hero severity-${severity}">
+      <div class="estimated-label">${t("estimatedDepart")}</div>
+      <div class="estimated-time">${estimated || "--:--"}</div>
+      <div class="delay-big">${delayDisplay}</div>
+      ${
+        train.scheduledTime && train.delayMin > 0
+          ? `<div class="scheduled-was">${t("scheduledWas", { time: train.scheduledTime })}</div>`
+          : ""
+      }
+    </div>
+  `;
 }
 
-export function renderResults(trains, resultsEl, { routeMode = false } = {}) {
+function renderReassurance(train) {
+  const severity = getDelaySeverity(train.delayMin);
+  return `<div class="reassurance severity-${severity}">${reassuranceMessage(train)}</div>`;
+}
+
+function renderAltTransport(train, context) {
+  if (getDelaySeverity(train.delayMin) !== "severe") return "";
+  const links = buildAltTransportLinks({
+    originName: context.originName,
+    destName: context.destName,
+  });
+  const items = links
+    .map(
+      (l) =>
+        `<a class="alt-link" href="${l.href}" target="_blank" rel="noopener noreferrer">${t(l.key)}</a>`
+    )
+    .join("");
+  return `
+    <div class="alt-transport">
+      <div class="alt-title">${t("altTransportTitle")}</div>
+      <div class="alt-links">${items}</div>
+    </div>
+  `;
+}
+
+function renderTrainCard(train, idx, { hero = false, highlighted = false, context = {} } = {}) {
+  const severity = getDelaySeverity(train.delayMin);
+  const dirBadge =
+    train.directionLabel
+      ? `<span class="dir-badge dir-${train.directionType}">${train.directionLabel}</span>`
+      : "";
+
+  const cardClasses = ["train-card", `severity-border-${severity}`];
+  if (hero) cardClasses.push("hero-card");
+  if (highlighted) cardClasses.push("highlighted");
+
+  return `
+    <div class="${cardClasses.join(" ")}" data-train-no="${train.trainNo}">
+      ${hero ? `<div class="hero-label">${t("heroTitle")}</div>` : ""}
+      ${renderReassurance(train)}
+      ${renderDelayBlock(train)}
+      <div class="card-body">
+        <div class="left">
+          <div class="meta-row">
+            ${dirBadge}
+            <span class="meta">${t("trainMeta", {
+              no: train.trainNo,
+              type: train.trainTypeName || "",
+              dest: train.endingStation || "",
+            })}</span>
+          </div>
+        </div>
+        <div class="platform-badge severity-${severity}">
+          <div class="num">${platformLabel(train.platform)}</div>
+          <div class="label">${t("platform")}</div>
+        </div>
+      </div>
+      ${renderAltTransport(train, context)}
+      <div class="guide-btn" data-idx="${idx}">${t("guideBtn")}</div>
+      <div class="car-layout" id="layout-${idx}">
+        <div class="note">${t("carNote")}</div>
+        ${renderCarLayout(train.trainNo)}
+      </div>
+    </div>
+  `;
+}
+
+function sortTrainsForDisplay(trains, { trainNoFilter = "", routeMode = false } = {}) {
+  const list = [...trains];
+  if (trainNoFilter) {
+    const needle = String(trainNoFilter).trim();
+    list.sort((a, b) => {
+      const aMatch = String(a.trainNo) === needle ? 0 : 1;
+      const bMatch = String(b.trainNo) === needle ? 0 : 1;
+      if (aMatch !== bMatch) return aMatch - bMatch;
+      return (a.scheduledTime || "").localeCompare(b.scheduledTime || "");
+    });
+  }
+  return list;
+}
+
+export function renderResults(
+  trains,
+  resultsEl,
+  { routeMode = false, trainNoFilter = "", originName = "", destName = "" } = {}
+) {
   if (!trains.length) {
     resultsEl.innerHTML = `<div class="empty-state">${
       routeMode ? t("emptyRoute") : t("emptyLive")
@@ -76,46 +177,34 @@ export function renderResults(trains, resultsEl, { routeMode = false } = {}) {
     return;
   }
 
-  resultsEl.innerHTML = "";
-  trains.slice(0, 12).forEach((train, idx) => {
-    const card = document.createElement("div");
-    card.className = "train-card";
+  const context = { originName, destName };
+  const sorted = sortTrainsForDisplay(trains, { trainNoFilter, routeMode });
+  const needle = String(trainNoFilter || "").trim();
+  const showHero = routeMode || needle;
+  const heroTrain = sorted[0];
+  const restTrains = showHero ? sorted.slice(1, 12) : sorted.slice(0, 12);
 
-    const delayClass = train.delayMin > 0 ? "late" : "ontime";
-    const delayText =
-      train.delayMin > 0 ? t("delayMin", { n: train.delayMin }) : t("onTime");
-    const dirBadge =
-      train.directionLabel
-        ? `<span class="dir-badge dir-${train.directionType}">${train.directionLabel}</span>`
-        : "";
+  let html = "";
+  if (showHero && heroTrain) {
+    html += renderTrainCard(heroTrain, 0, {
+      hero: true,
+      highlighted: needle && String(heroTrain.trainNo) === needle,
+      context,
+    });
+    if (restTrains.length) {
+      html += `<div class="section-divider">${t("otherTrains")}</div>`;
+    }
+  }
 
-    card.innerHTML = `
-      <div class="left">
-        <div class="time">
-          ${train.scheduledTime || "--:--"}
-          ${dirBadge}
-          <span class="delay ${delayClass}">${delayText}</span>
-        </div>
-        <div class="meta">
-          ${t("trainMeta", {
-            no: train.trainNo,
-            type: train.trainTypeName || "",
-            dest: train.endingStation || "",
-          })}
-        </div>
-      </div>
-      <div class="platform-badge">
-        <div class="num">${train.platform ?? "—"}</div>
-        <div class="label">${t("platform")}</div>
-      </div>
-      <div class="guide-btn" data-idx="${idx}">${t("guideBtn")}</div>
-      <div class="car-layout" id="layout-${idx}">
-        <div class="note">${t("carNote")}</div>
-        ${renderCarLayout(train.trainNo)}
-      </div>
-    `;
-    resultsEl.appendChild(card);
+  restTrains.forEach((train, i) => {
+    const idx = showHero ? i + 1 : i;
+    html += renderTrainCard(train, idx, {
+      highlighted: needle && String(train.trainNo) === needle,
+      context,
+    });
   });
+
+  resultsEl.innerHTML = html;
 
   resultsEl.querySelectorAll(".guide-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -143,9 +232,19 @@ export async function fetchLiveData(originId, destId, apiLang, direction = "all"
   };
 }
 
-export function handleSearchResult(data, { resultsEl, statusEl, destName, onFirstSpeak }) {
+export function setQueryLabels({ originName = "", destName = "" } = {}) {
+  currentOriginName = originName;
+  currentDestName = destName;
+}
+
+export function handleSearchResult(data, { resultsEl, statusEl, destName, trainNoFilter = "", onFirstSpeak }) {
   const { trains, routeMode, meta } = data;
-  renderResults(trains, resultsEl, { routeMode });
+  renderResults(trains, resultsEl, {
+    routeMode,
+    trainNoFilter,
+    originName: currentOriginName,
+    destName: destName || meta.destName || currentDestName,
+  });
 
   if (routeMode) {
     statusEl.textContent = `${t("statusRouteUpdated", {

@@ -191,6 +191,9 @@ body.native-app main {
 .dir-badge.dir-south { background: #fdeee0; color: #b3590f; }
 
 body[data-large="1"] .train-card .time { font-size: 28px; }
+body[data-large="1"] .delay-hero .estimated-time { font-size: 44px; }
+body[data-large="1"] .delay-hero .delay-big { font-size: 28px; }
+body[data-large="1"] .reassurance { font-size: 17px; }
 body[data-large="1"] .platform-badge .num { font-size: 36px; }
 body[data-large="1"] button.primary,
 body[data-large="1"] button.secondary,
@@ -359,6 +362,15 @@ button.secondary {
 }
 #status.error { color: #b3261e; font-weight: 600; }
 
+.section-divider {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #dce8ee;
+}
+
 .train-card {
   background: var(--white);
   border: 1px solid #e1ecf1;
@@ -366,22 +378,109 @@ button.secondary {
   padding: 16px 18px;
   margin-bottom: 12px;
   display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(33, 41, 92, 0.04);
+}
+.train-card.hero-card {
+  border-width: 2px;
+  box-shadow: 0 4px 16px rgba(33, 41, 92, 0.1);
+}
+.train-card.highlighted {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+.train-card.severity-border-ok { border-left: 5px solid #1d7a4c; }
+.train-card.severity-border-moderate { border-left: 5px solid #e67e22; }
+.train-card.severity-border-severe { border-left: 5px solid #b3261e; }
+
+.hero-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.reassurance {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.reassurance.severity-ok {
+  background: #e3f5ec;
+  color: #1d7a4c;
+}
+.reassurance.severity-moderate {
+  background: #fdeee0;
+  color: #9a4a00;
+}
+.reassurance.severity-severe {
+  background: #fde8e8;
+  color: #8a1f1a;
+}
+
+.delay-hero {
+  text-align: center;
+  padding: 12px 8px 8px;
+  border-radius: 10px;
+}
+.delay-hero.severity-ok { background: #f4fbf7; }
+.delay-hero.severity-moderate { background: #fff8f0; }
+.delay-hero.severity-severe { background: #fff5f5; }
+
+.delay-hero .estimated-label {
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 2px;
+}
+.delay-hero .estimated-time {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.delay-hero .delay-big {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 6px;
+}
+.delay-hero.severity-ok .delay-big { color: #1d7a4c; }
+.delay-hero.severity-moderate .delay-big { color: #c45c00; }
+.delay-hero.severity-severe .delay-big { color: #b3261e; }
+.delay-hero .scheduled-was {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 4px;
+}
+
+.train-card .card-body {
+  display: grid;
   grid-template-columns: 1fr auto;
   gap: 12px;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(33, 41, 92, 0.04);
 }
 
 .train-card .left { min-width: 0; }
-.train-card .time {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--navy);
+.train-card .meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
 .train-card .meta {
   font-size: 13px;
   color: var(--gray);
-  margin-top: 2px;
+}
+
+/* legacy delay badge (unused but kept for compat) */
+.train-card .time {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
 }
 .train-card .delay {
   font-size: 12px;
@@ -393,6 +492,35 @@ button.secondary {
 .delay.ontime { background: #e3f5ec; color: #1d7a4c; }
 .delay.late { background: #fdeee0; color: #b3590f; }
 
+.alt-transport {
+  padding: 12px;
+  background: #fff5f5;
+  border: 1px solid #f5c6c6;
+  border-radius: 8px;
+}
+.alt-transport .alt-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a1f1a;
+  margin-bottom: 8px;
+}
+.alt-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.alt-link {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid #e8a8a8;
+  color: #8a1f1a;
+  text-decoration: none;
+}
+.alt-link:hover { background: #fde8e8; }
+
 .platform-badge {
   background: var(--navy);
   color: var(--white);
@@ -401,6 +529,9 @@ button.secondary {
   text-align: center;
   min-width: 86px;
 }
+.platform-badge.severity-moderate { background: #c45c00; }
+.platform-badge.severity-severe { background: #8a1f1a; }
+.platform-badge.severity-ok .num { color: #fff; }
 .platform-badge .num {
   font-size: 24px;
   font-weight: 800;
@@ -530,8 +661,9 @@ footer {
 
 @media (max-width: 480px) {
   .train-card { grid-template-columns: 1fr; }
+  .train-card .card-body { grid-template-columns: 1fr; }
   .platform-badge { justify-self: start; }
-  .train-card .time { font-size: 20px; }
+  .delay-hero .estimated-time { font-size: 32px; }
   .guide-btn {
     font-size: 13px;
     line-height: 1.5;

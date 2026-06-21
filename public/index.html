@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#21295c" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="智慧搭乘" />
-<link rel="stylesheet" href="/css/app.css?v=6" />
+<link rel="stylesheet" href="/css/app.css?v=7" />
 </head>
 <body>
 
@@ -53,6 +53,21 @@
       </div>
       <button class="primary" id="searchBtn" data-i18n="search">查詢即時看板</button>
       <button class="secondary" id="favBtn" data-i18n="addFavorite">加入常用</button>
+    </div>
+
+    <div class="field-label" data-i18n="selectDestination">我要去哪裡？（選填）</div>
+    <p class="field-hint" data-i18n="destHint">依 TDX 當日時刻表，篩選從起站出發且會停靠此站的列車</p>
+    <div class="row">
+      <div class="combobox">
+        <input type="text" id="destInput" autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入目的地（如：花蓮、6000）" />
+        <ul id="destSuggestions" class="suggestions hidden"></ul>
+        <input type="hidden" id="destId" />
+      </div>
+    </div>
+
+    <div class="field-label" data-i18n="trainNoLabel">車次號碼（選填，高亮我的車次）</div>
+    <div class="row">
+      <input type="text" id="trainNoInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-i18n-placeholder="trainNoPlaceholder" placeholder="如 271" style="flex:1;min-width:120px;max-width:200px;" />
     </div>
 
     <div class="field-label" data-i18n="directionLabel">行車方向</div>
@@ -102,6 +117,6 @@
   <span data-i18n="footerCredit">2026 軟體專案 </span>
 </footer>
 
-<script type="module" src="/js/app.js?v=5"></script>
+<script type="module" src="/js/app.js?v=6"></script>
 </body>
 </html>

@@ -23,6 +23,7 @@ import {
   resetSearchState,
   startPolling,
   stopPolling,
+  setQueryLabels,
 } from "./liveboard.js";
 import { startQrScan, stopQrScan, showLocationBadge } from "./qr.js";
 
@@ -52,6 +53,7 @@ let stations = [];
 let largeMode = false;
 let travelDirection = "all";
 let originCombo;
+let destCombo;
 let scanning = false;
 let deferredInstallPrompt = null;
 
@@ -135,6 +137,9 @@ async function resolveStationViaServer(combo, inputEl, hiddenEl) {
 async function doSearch() {
   const originInput = document.getElementById("originInput");
   const originHidden = document.getElementById("originId");
+  const destInput = document.getElementById("destInput");
+  const destHidden = document.getElementById("destId");
+  const trainNoInput = document.getElementById("trainNoInput");
 
   if (!stations.length) {
     setStatus("statusLoadingStations");
@@ -152,15 +157,39 @@ async function doSearch() {
     return;
   }
 
+  let destId = destHidden.value;
+  if (destInput.value.trim() && !destId) {
+    destId = await resolveStationViaServer(destCombo, destInput, destHidden);
+  }
+  if (destInput.value.trim() && !destId) {
+    setStatus("statusStationNotFound", { name: destInput.value.trim() }, true);
+    return;
+  }
+
+  const trainNoFilter = trainNoInput?.value.trim() || "";
+  const originStation = stations.find((s) => s.stationId === originId);
+  const destStation = destId ? stations.find((s) => s.stationId === destId) : null;
+  setQueryLabels({
+    originName: originStation ? stationLabel(originStation, locale) : originText,
+    destName: destStation ? stationLabel(destStation, locale) : destInput.value.trim(),
+  });
+
   stopPolling();
   resetSearchState();
   setStatus("statusSearching");
   resultsEl.innerHTML = `<div class="empty-state">${t("loading")}</div>`;
 
+  const renderOpts = {
+    routeMode: false,
+    trainNoFilter,
+    originName: originStation ? stationLabel(originStation, locale) : originText,
+    destName: destStation ? stationLabel(destStation, locale) : "",
+  };
+
   try {
     const data = await fetchLiveData(
       originId,
-      null,
+      destId || null,
       apiLang(),
       travelDirection
     );
@@ -168,7 +197,8 @@ async function doSearch() {
     handleSearchResult(data, {
       resultsEl,
       statusEl,
-      destName: "",
+      destName: destStation ? stationLabel(destStation, locale) : "",
+      trainNoFilter,
     });
 
     addRecent(originId);
@@ -178,9 +208,14 @@ async function doSearch() {
 
     startPolling(
       () =>
-        fetchLiveData(originId, null, apiLang(), travelDirection),
-      (pollData, changes) => {
-        renderResults(pollData.trains, resultsEl, { routeMode: pollData.routeMode });
+        fetchLiveData(originId, destId || null, apiLang(), travelDirection),
+      (pollData) => {
+        renderResults(pollData.trains, resultsEl, {
+          routeMode: pollData.routeMode,
+          trainNoFilter,
+          originName: renderOpts.originName,
+          destName: renderOpts.destName || pollData.meta?.destName || "",
+        });
       }
     );
 
@@ -328,15 +363,26 @@ async function init() {
       getBrowseContext: browseContext,
     });
 
+    destCombo = createCombobox({
+      inputEl: document.getElementById("destInput"),
+      listEl: document.getElementById("destSuggestions"),
+      hiddenEl: document.getElementById("destId"),
+      stations,
+      localeGetter: () => locale,
+      getBrowseContext: browseContext,
+    });
+
     setStatus("statusStationsLoaded", { n: stations.length });
     renderQuickLinks();
     if (searchBtn) searchBtn.disabled = false;
 
     const params = new URLSearchParams(location.search);
     const stationParam = params.get("station");
+    const destParam = params.get("dest");
     const zoneParam = params.get("zone");
     if (stationParam) {
       originCombo.pickById(stationParam);
+      if (destParam) destCombo.pickById(destParam);
       if (zoneParam) showLocationBadge(zoneParam.toUpperCase());
       doSearch();
     }
