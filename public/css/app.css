@@ -521,25 +521,102 @@ button.secondary {
   line-height: 1.45;
 }
 
-.alt-suggest {
+.alt-plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 14px 10px;
+  border-top: 1px solid #f5c6c6;
+  background: #fff5f5;
+}
+
+.alt-plan-card {
+  display: block;
+  text-decoration: none;
+  background: #fde8e8;
+  border: 1px solid #e8a8a8;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #8a1f1a;
+  transition: background 0.15s ease;
+}
+.alt-plan-card:hover {
+  background: #fddddd;
+}
+.alt-plan-primary {
+  border-color: #b3261e;
+  border-width: 2px;
+  background: #fff0f0;
+}
+
+.alt-plan-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: #fde8e8;
-  color: #8a1f1a;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  border-top: 1px solid #f5c6c6;
+  gap: 8px;
 }
-.alt-suggest:hover { background: #fddddd; }
-.alt-suggest-icon { font-size: 16px; flex-shrink: 0; }
-.alt-suggest-text { flex: 1; min-width: 0; line-height: 1.4; }
+.alt-plan-no {
+  font-size: 12px;
+  font-weight: 800;
+  color: #b3261e;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+.alt-plan-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.alt-plan-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
 .alt-chevron {
   font-size: 20px;
   color: #b3261e;
   flex-shrink: 0;
+}
+
+.alt-plan-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-left: 60px;
+}
+
+.alt-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  line-height: 1.3;
+}
+.alt-tag-label {
+  opacity: 0.85;
+}
+.alt-tag-value {
+  font-weight: 800;
+}
+
+.alt-tag-speed {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #90caf9;
+}
+.alt-tag-price {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+.alt-tag-convenience {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffcc80;
 }
 
 .alt-chips {
@@ -560,7 +637,9 @@ button.secondary {
   color: #8a1f1a;
   text-decoration: none;
 }
-.alt-chip:hover { background: #fde8e8; }
+.alt-chip:hover {
+  background: #fde8e8;
+}
 
 .live-tag {
   display: inline-block;

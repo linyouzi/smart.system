@@ -9,11 +9,11 @@ const STATION_CITY = {
   "3300": "taichung",
   "3340": "taichung",
   "4220": "tainan",
-  "6000": "hualien",
-  "7000": "kaohsiung",
-  "7020": "kaohsiung",
+  "4350": "kaohsiung",
+  "4400": "kaohsiung",
+  "7000": "hualien",
   "5020": "chiayi",
-  "4080": "changhua",
+  "4080": "chiayi",
   "2170": "miaoli",
 };
 
@@ -56,21 +56,81 @@ const CITY_PROFILE = {
   },
 };
 
+const ALT_PLAN_DEFS = [
+  {
+    id: "thsr",
+    titleKey: "altPlanThsr",
+    icon: "🚄",
+    tieOrder: 0,
+    hrefKey: "thsr",
+    tags: [
+      { type: "speed", level: "fast" },
+      { type: "price", level: "high" },
+      { type: "convenience", level: "normal" },
+    ],
+  },
+  {
+    id: "bus",
+    titleKey: "altPlanBus",
+    icon: "🚌",
+    tieOrder: 1,
+    hrefKey: "bus",
+    tags: [
+      { type: "speed", level: "slow" },
+      { type: "price", level: "low" },
+      { type: "convenience", level: "easy" },
+    ],
+  },
+  {
+    id: "tour",
+    titleKey: "altPlanTour",
+    icon: "🚃",
+    tieOrder: 2,
+    hrefKey: "tour",
+    tags: [
+      { type: "speed", level: "medium" },
+      { type: "convenience", level: "easy" },
+    ],
+  },
+];
+
+const CITY_PLAN_OVERRIDES = {
+  hualien: {
+    bus: [{ type: "price", level: "low" }],
+    tour: [
+      { type: "speed", level: "medium" },
+      { type: "price", level: "medium" },
+      { type: "convenience", level: "easy" },
+    ],
+  },
+};
+
+function getCityKey(originId) {
+  return STATION_CITY[String(originId)] || "default";
+}
+
+function getProfile(originId) {
+  const city = getCityKey(originId);
+  return CITY_PROFILE[city] || CITY_PROFILE.default;
+}
+
 export function getCityHint(originId) {
-  const city = STATION_CITY[String(originId)] || "default";
-  const profile = CITY_PROFILE[city] || CITY_PROFILE.default;
+  const profile = getProfile(originId);
   return t(profile.hintKey);
 }
 
-export function buildAltTransportLinks({ originId = "", originName = "", destName = "" } = {}) {
-  const city = STATION_CITY[String(originId)] || "default";
-  const profile = CITY_PROFILE[city] || CITY_PROFILE.default;
+function buildMapsUrl({ originName = "", destName = "" } = {}) {
   const origin = encodeURIComponent(originName || "Taiwan");
   const dest = encodeURIComponent(destName || "");
-  const mapsQuery =
-    destName && originName
-      ? `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=transit`
-      : `https://www.google.com/maps/search/?api=1&query=${origin}+public+transport`;
+  if (destName && originName) {
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=transit`;
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${origin}+public+transport`;
+}
+
+export function buildAltTransportLinks(context = {}) {
+  const profile = getProfile(context.originId);
+  const mapsQuery = buildMapsUrl(context);
 
   return [
     { key: "altThsr", href: profile.thsr },
@@ -80,30 +140,78 @@ export function buildAltTransportLinks({ originId = "", originName = "", destNam
   ];
 }
 
+function resolvePlanTags(planDef, originId) {
+  const city = getCityKey(originId);
+  const override = CITY_PLAN_OVERRIDES[city]?.[planDef.id];
+  return override ?? planDef.tags;
+}
+
+function buildAltPlans(context) {
+  const profile = getProfile(context.originId);
+
+  return ALT_PLAN_DEFS.map((def) => {
+    const tags = resolvePlanTags(def, context.originId);
+    return {
+      id: def.id,
+      icon: def.icon,
+      title: t(def.titleKey),
+      href: profile[def.hrefKey],
+      tags,
+      tagCount: tags.length,
+      tieOrder: def.tieOrder,
+    };
+  }).sort((a, b) => b.tagCount - a.tagCount || a.tieOrder - b.tieOrder);
+}
+
+function renderTagBadge(tag) {
+  const label = t(`altTag_${tag.type}`);
+  const value = t(`altLevel_${tag.level}`);
+  return `
+    <span class="alt-tag alt-tag-${tag.type}">
+      <span class="alt-tag-label">${label}</span>
+      <span class="alt-tag-value">${value}</span>
+    </span>
+  `;
+}
+
+function renderPlanCard(plan, planNo) {
+  const tagHtml = plan.tags.map(renderTagBadge).join("");
+  return `
+    <a class="alt-plan-card${planNo === 1 ? " alt-plan-primary" : ""}"
+       href="${plan.href}"
+       target="_blank"
+       rel="noopener noreferrer">
+      <div class="alt-plan-header">
+        <span class="alt-plan-no">${t("altPlanNo", { n: planNo })}</span>
+        <span class="alt-plan-icon" aria-hidden="true">${plan.icon}</span>
+        <span class="alt-plan-title">${plan.title}</span>
+        <span class="alt-chevron" aria-hidden="true">›</span>
+      </div>
+      <div class="alt-plan-tags">${tagHtml}</div>
+    </a>
+  `;
+}
+
 export function renderAltTransportBlock(context) {
-  const links = buildAltTransportLinks(context);
+  const plans = buildAltPlans(context);
   const cityHint = getCityHint(context.originId);
-  const items = links
+  const links = buildAltTransportLinks(context);
+
+  const planCards = plans.map((plan, i) => renderPlanCard(plan, i + 1)).join("");
+
+  const chips = links
     .map(
       (l) =>
         `<a class="alt-chip" href="${l.href}" target="_blank" rel="noopener noreferrer">${t(l.key)}</a>`
     )
     .join("");
 
-  const primary = links[0];
   return `
     <div class="alt-transport-block">
       <div class="alt-block-title">${t("altTransportAction")}</div>
       <div class="alt-city-hint">${cityHint}</div>
-      <a class="alt-suggest" href="${primary.href}" target="_blank" rel="noopener noreferrer">
-        <span class="alt-suggest-icon" aria-hidden="true">🚌</span>
-        <span class="alt-suggest-text">${t("altSuggestion", {
-          origin: context.originName,
-          dest: context.destName,
-        })}</span>
-        <span class="alt-chevron" aria-hidden="true">›</span>
-      </a>
-      <div class="alt-chips">${items}</div>
+      <div class="alt-plan-list">${planCards}</div>
+      <div class="alt-chips">${chips}</div>
     </div>
   `;
 }
