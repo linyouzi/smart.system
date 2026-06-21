@@ -52,7 +52,7 @@
   "changePlatform": "月台 {from} → {to}",
   "changeDelay": "誤點 {from} → {to} 分",
   "footer": "資料來源：交通部 TDX 運輸資料流通服務平台｜車廂/車門相對位置為示意圖，非 TDX 實測資料",
-  "footerCredit": "HACKRAIL 鐵客松提案 — 中原大學資訊管理學系",
+  "footerCredit": "2026 軟體專案",
   "statusConnecting": "正在連線後端伺服器…",
   "statusLoadingStations": "正在載入車站清單…",
   "statusStationsLoaded": "已載入 {n} 個車站，請選擇車站並查詢。",

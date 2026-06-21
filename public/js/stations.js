@@ -244,7 +244,11 @@ export function createCombobox({
     hiddenEl.value = "";
     const q = inputEl.value.trim();
     if (q) {
-      renderList(filterStations(stations, q, localeGetter()));
+      const items = filterStations(stations, q, localeGetter());
+      // #region agent log
+      if (q.includes('通霄')||q.includes('2170')) fetch('http://127.0.0.1:7368/ingest/0be302a9-cd00-4192-a4f7-1ccb70fba283',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'684877'},body:JSON.stringify({sessionId:'684877',location:'stations.js:updateSuggestions',message:'station search',data:{query:q,matchCount:items.length,top:items.slice(0,3).map(s=>s.name)},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+      renderList(items);
     } else if (getBrowseContext) {
       renderList(getBrowseStations(stations, getBrowseContext()));
     } else {

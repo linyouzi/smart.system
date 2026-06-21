@@ -33,6 +33,9 @@ export async function loadLocale(lang) {
     const map = { langZh: "zh-TW", langEn: "en", langTh: "th", langVi: "vi" };
     el.classList.toggle("active", lang === map[id]);
   });
+  // #region agent log
+  fetch('http://127.0.0.1:7368/ingest/0be302a9-cd00-4192-a4f7-1ccb70fba283',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'684877'},body:JSON.stringify({sessionId:'684877',location:'i18n.js:loadLocale',message:'locale applied',data:{lang,footerCredit:dict.footerCredit,stationPlaceholder:dict.stationPlaceholder},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
 }
 
 export function apiLang() {
