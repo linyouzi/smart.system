@@ -19,6 +19,7 @@ let currentDestId = null;
 let currentOriginName = "";
 let currentDestName = "";
 let isFirstLoad = true;
+let activeSearchId = 0;
 
 function trainKey(t) {
   return String(t.trainNo);
@@ -47,11 +48,23 @@ export function stopPolling() {
   }
 }
 
-export function startPolling(fetchFn, onUpdate) {
+export function beginSearchSession() {
+  activeSearchId += 1;
+  stopPolling();
+  return activeSearchId;
+}
+
+export function isActiveSearch(searchId) {
+  return searchId === activeSearchId;
+}
+
+export function startPolling(searchId, fetchFn, onUpdate) {
   stopPolling();
   pollTimer = setInterval(async () => {
+    if (searchId !== activeSearchId) return;
     try {
       const data = await fetchFn();
+      if (searchId !== activeSearchId) return;
       const changes = isFirstLoad ? [] : diffLiveboard(data.trains);
       rebuildSnapshot(data.trains);
       onUpdate(data, changes);
@@ -232,13 +245,45 @@ export function setQueryLabels({ originName = "", destName = "" } = {}) {
   currentDestName = destName;
 }
 
+export function applyPollUpdate(
+  pollData,
+  { resultsEl, statusEl, resultTitleEl, trainNoFilter = "", destName = "" }
+) {
+  const { trains, meta } = pollData;
+  const originName = meta.originName || currentOriginName;
+  const dest = meta.destName || destName || currentDestName;
+
+  if (resultTitleEl && originName && dest) {
+    resultTitleEl.textContent = formatRouteTitle(originName, dest);
+  }
+
+  renderResults(trains, resultsEl, {
+    trainNoFilter,
+    originName,
+    destName: dest,
+    originId: meta.originId || currentOriginId,
+    meta,
+  });
+
+  const odNote = meta.odCount ? ` · ${t("statusOdTrains", { n: meta.odCount })}` : "";
+  statusEl.textContent = `${t("statusRouteUpdated", {
+    n: meta.matched ?? trains.length,
+    dest,
+  })}${odNote} · ${t("statusPoll")}`;
+  statusEl.classList.remove("error");
+}
+
 export function formatRouteTitle(originName, destName) {
   return t("routeLine", { origin: originName, dest: destName });
 }
 
 export function handleSearchResult(data, { resultsEl, statusEl, destName, trainNoFilter = "", onFirstSpeak }) {
   const { trains, meta } = data;
-  const dest = destName || meta.destName || currentDestName;
+  const dest = meta.destName || destName || currentDestName;
+  const originName = meta.originName || currentOriginName;
+
+  currentOriginName = originName;
+  currentDestName = dest;
 
   renderResults(trains, resultsEl, {
     trainNoFilter,

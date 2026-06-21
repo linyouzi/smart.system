@@ -19,12 +19,13 @@ import { ensureNotificationPermission } from "./notify.js";
 import {
   fetchLiveData,
   handleSearchResult,
-  renderResults,
   resetSearchState,
   startPolling,
-  stopPolling,
   setQueryLabels,
   formatRouteTitle,
+  beginSearchSession,
+  isActiveSearch,
+  applyPollUpdate,
 } from "./liveboard.js";
 import { startQrScan, stopQrScan, showLocationBadge } from "./qr.js";
 
@@ -57,6 +58,7 @@ let originCombo;
 let destCombo;
 let scanning = false;
 let deferredInstallPrompt = null;
+let lastSearchKey = "";
 
 function setStatus(key, vars = {}, isError = false) {
   statusEl.textContent = t(key, vars);
@@ -78,6 +80,7 @@ function setDirection(dir) {
   dirAll.classList.toggle("active", dir === "all");
   dirNorth.classList.toggle("active", dir === "north");
   dirSouth.classList.toggle("active", dir === "south");
+  if (lastSearchKey) doSearch();
 }
 
 function updateResultTitle(originName, destName) {
@@ -136,7 +139,7 @@ async function resolveStationViaServer(combo, inputEl, hiddenEl) {
   } catch (err) {
     console.error("station match failed", err);
   }
-  return hiddenEl.value;
+  return "";
 }
 
 async function doSearch() {
@@ -159,13 +162,11 @@ async function doSearch() {
     } else {
       setStatus("statusSelectOrigin", {}, true);
     }
+    lastSearchKey = "";
     return;
   }
 
-  let destId = destHidden.value;
-  if (destInput.value.trim() && !destId) {
-    destId = await resolveStationViaServer(destCombo, destInput, destHidden);
-  }
+  const destId = await resolveStationViaServer(destCombo, destInput, destHidden);
   const destText = destInput.value.trim();
   if (!destId) {
     if (destText) {
@@ -173,13 +174,18 @@ async function doSearch() {
     } else {
       setStatus("statusSelectDestination", {}, true);
     }
+    lastSearchKey = "";
     return;
   }
 
   if (originId === destId) {
     setStatus("statusSameStation", {}, true);
+    lastSearchKey = "";
     return;
   }
+
+  lastSearchKey = `${originId}|${destId}|${travelDirection}`;
+  const searchId = beginSearchSession();
 
   const originStation = stations.find((s) => s.stationId === originId);
   const destStation = stations.find((s) => s.stationId === destId);
@@ -189,20 +195,14 @@ async function doSearch() {
 
   const trainNoFilter = trainNoInput?.value.trim() || "";
 
-  stopPolling();
   resetSearchState();
   setStatus("statusSearching");
   resultsEl.innerHTML = `<div class="empty-state">${t("loading")}</div>`;
 
-  const renderOpts = {
-    trainNoFilter,
-    originName: originLabel,
-    destName: destLabel,
-    originId,
-  };
-
   try {
     const data = await fetchLiveData(originId, destId, apiLang(), travelDirection);
+    if (!isActiveSearch(searchId)) return;
+
     updateResultTitle(originLabel, destLabel);
     handleSearchResult(data, {
       resultsEl,
@@ -217,20 +217,23 @@ async function doSearch() {
     wheelchairHint.classList.toggle("hidden", !wheelchairCheck.checked);
 
     startPolling(
+      searchId,
       () => fetchLiveData(originId, destId, apiLang(), travelDirection),
       (pollData) => {
-        renderResults(pollData.trains, resultsEl, {
+        if (!isActiveSearch(searchId)) return;
+        applyPollUpdate(pollData, {
+          resultsEl,
+          statusEl,
+          resultTitleEl,
           trainNoFilter,
-          originName: renderOpts.originName,
-          destName: renderOpts.destName,
-          originId,
-          meta: pollData.meta,
+          destName: destLabel,
         });
       }
     );
 
     await ensureNotificationPermission();
   } catch (err) {
+    if (!isActiveSearch(searchId)) return;
     console.error(err);
     setStatus("statusSearchFail", { msg: err.message }, true);
     resultsEl.innerHTML = `<div class="empty-state">${t("statusSearchFail", { msg: err.message })}</div>`;

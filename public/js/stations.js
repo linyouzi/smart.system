@@ -161,6 +161,21 @@ export function stationLabel(station, locale) {
   return station.name;
 }
 
+function stationMatchesInput(station, text, locale) {
+  const trimmed = (text || "").trim();
+  if (!trimmed || !station) return false;
+  const label = stationLabel(station, locale);
+  if (trimmed === label || trimmed === station.name || trimmed === station.nameEn) return true;
+  if (String(station.stationId) === trimmed) return true;
+  for (const q of queryVariants(trimmed)) {
+    if (String(station.stationId) === q) return true;
+    if (normalize(station.name) === q) return true;
+    if (normalize(station.nameEn) === q) return true;
+    if (station.searchTerms?.has(q)) return true;
+  }
+  return scoreStation(station, trimmed) >= 85;
+}
+
 function findStationByInput(stations, text, locale) {
   const trimmed = (text || "").trim();
   if (!trimmed) return null;
@@ -198,10 +213,16 @@ export function createCombobox({
   let visible = [];
 
   function resolveInput() {
+    const text = inputEl.value.trim();
     if (hiddenEl.value) {
-      return stations.find((s) => s.stationId === hiddenEl.value) || null;
+      const bound = stations.find((s) => s.stationId === hiddenEl.value);
+      if (bound && stationMatchesInput(bound, text, localeGetter())) {
+        return bound;
+      }
+      hiddenEl.value = "";
     }
-    const station = findStationByInput(stations, inputEl.value, localeGetter());
+    if (!text) return null;
+    const station = findStationByInput(stations, text, localeGetter());
     if (station) pick(station);
     return station;
   }

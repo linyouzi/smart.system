@@ -49,6 +49,8 @@ let cachedToken = null;
 let tokenExpiresAt = 0;
 
 const tdxResponseCache = new Map();
+const searchResponseCache = new Map();
+const SEARCH_CACHE_TTL_MS = 30_000;
 const TDX_MIN_INTERVAL_MS = 250;
 let lastTdxRequestAt = 0;
 
@@ -264,7 +266,7 @@ function simplifyLiveBoardRow(t, lang) {
       : t.EndingStationName?.Zh_tw,
     platform: t.Platform ?? null,
     delayMin: t.DelayTime ?? 0,
-    scheduledTime: t.ScheduledDepartureTime || t.ScheduledArrivalTime,
+    scheduledTime: String(t.ScheduledDepartureTime || t.ScheduledArrivalTime || "").slice(0, 5),
     trainTypeName: en
       ? t.TrainTypeName?.En || t.TrainTypeName?.Zh_tw
       : t.TrainTypeName?.Zh_tw,
@@ -492,28 +494,33 @@ function filterTrainsByDirection(trains, direction) {
 }
 
 async function buildLiveBoardResponse(originId, lang, { destId = "", direction = "all" } = {}) {
-  const raw = await callTdx(`/v2/Rail/TRA/LiveBoard/Station/${originId}?$format=JSON`);
+  const livePromise = callTdx(`/v2/Rail/TRA/LiveBoard/Station/${originId}?$format=JSON`);
+  const odPromise = destId
+    ? fetchOdSchedule(originId, destId, lang)
+    : Promise.resolve({ rows: [], odOk: false, date: todayIso() });
+  const namesPromise = destId
+    ? Promise.all([getStationNameZh(originId), getStationNameZh(destId)])
+    : getStationNameZh(originId).then((originName) => [originName, ""]);
+
+  const [raw, odResult, namePair] = await Promise.all([livePromise, odPromise, namesPromise]);
+  const [originName, destNameFromId] = namePair;
+
   let liveTrains = unwrapTdxList(raw).map((t) => ({
     ...simplifyLiveBoardRow(t, lang),
     liveStatus: "live",
   }));
   const totalLive = liveTrains.length;
 
-  const originName = await getStationNameZh(originId);
-  let destName = "";
+  let destName = destId ? destNameFromId : "";
   let routeMode = false;
-  let odOk = false;
-  let odCount = 0;
+  let odOk = odResult.odOk;
+  let odCount = odResult.rows.length;
 
   if (destId) {
     routeMode = true;
-    destName = await getStationNameZh(destId);
-    const { rows: odRows, odOk: ok } = await fetchOdSchedule(originId, destId, lang);
-    odOk = ok;
-    odCount = odRows.length;
-
-    if (odRows.length) {
-      liveTrains = mergeOdWithLive(odRows, liveTrains);
+    destName = destNameFromId;
+    if (odResult.rows.length) {
+      liveTrains = mergeOdWithLive(odResult.rows, liveTrains);
     } else {
       const allowedTrainNos = await fetchOdTrainNos(originId, destId);
       liveTrains = filterTrainsByDest(liveTrains, destName, allowedTrainNos);
@@ -665,9 +672,18 @@ async function handleLiveBoard(req, res, stationId, lang, query) {
 
 async function handleSearchLiveBoard(req, res, stationId, lang, query) {
   try {
-    const payload = await buildLiveBoardResponse(stationId, lang, {
-      destId: query.destId || "",
-      direction: query.direction || "all",
+    const destId = query.destId || "";
+    const direction = query.direction || "all";
+    const cacheKey = `${stationId}|${destId}|${direction}|${lang}`;
+    const cached = searchResponseCache.get(cacheKey);
+    if (cached && Date.now() < cached.expiresAt) {
+      return sendJson(res, 200, cached.data);
+    }
+
+    const payload = await buildLiveBoardResponse(stationId, lang, { destId, direction });
+    searchResponseCache.set(cacheKey, {
+      data: payload,
+      expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
     });
     sendJson(res, 200, payload);
   } catch (err) {
