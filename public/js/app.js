@@ -110,6 +110,11 @@ function renderQuickLinks() {
 }
 
 async function doSearch() {
+  if (!stations.length) {
+    setStatus("statusLoadingStations", {}, true);
+    return;
+  }
+
   originCombo?.resolveInput();
   destCombo?.resolveInput();
 
@@ -203,6 +208,8 @@ async function init() {
   dirAll.addEventListener("click", () => setDirection("all"));
   dirNorth.addEventListener("click", () => setDirection("north"));
   dirSouth.addEventListener("click", () => setDirection("south"));
+
+  if (searchBtn) searchBtn.disabled = true;
 
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -320,6 +327,7 @@ async function init() {
 
     setStatus("statusStationsLoaded", { n: stations.length });
     renderQuickLinks();
+    if (searchBtn) searchBtn.disabled = false;
 
     // #region agent log
     fetch('http://127.0.0.1:7368/ingest/0be302a9-cd00-4192-a4f7-1ccb70fba283',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'684877'},body:JSON.stringify({sessionId:'684877',location:'app.js:init',message:'stations ready',data:{build:APP_BUILD,count:stations.length,sample:stations.find(s=>s.stationId==='2170')?.name||null,footerText:document.querySelector('[data-i18n=footerCredit]')?.textContent},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});

@@ -180,7 +180,7 @@ function findStationByInput(stations, text, locale) {
   if (matches.length > 1) {
     const topScore = scoreStation(matches[0], trimmed);
     const secondScore = scoreStation(matches[1], trimmed);
-    if (topScore >= 85 && topScore > secondScore) return matches[0];
+    if (topScore >= 70 && topScore > secondScore) return matches[0];
   }
   return null;
 }
