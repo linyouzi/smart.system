@@ -1,6 +1,5 @@
 {
   "title": "智慧友善搭乘系統",
-  "subtitle": "Smart Friendly Boarding System — 即時月台導引 Demo（串接 TDX 運輸資料流通服務）",
   "serverSettings": "伺服器設定（手機 App 必填）",
   "serverHint": "App 需連到執行 node server.js 的電腦，例如 http://192.168.0.10:3000（同一 Wi‑Fi）",
   "serverSave": "儲存",
@@ -12,7 +11,6 @@
   "selectStation": "出發站",
   "selectDestination": "抵達站",
   "searchPanelTitle": "查詢班次",
-  "destHint": "依 TDX 當日時刻表，顯示從出發站出發且會停靠抵達站的列車",
   "stationPlaceholder": "輸入出發站（如：台北、1000）",
   "destPlaceholder": "輸入抵達站（如：花蓮、6000）",
   "directionLabel": "行車方向",

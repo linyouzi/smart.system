@@ -1,10 +1,8 @@
 {
   "title": "ระบบขึ้นรถไฟอัจฉริยะ",
-  "subtitle": "Demo แสดงชานชาลาแบบเรียลไทม์ (TDX Open Data)",
   "selectStation": "สถานีต้นทาง",
   "selectDestination": "สถานีปลายทาง",
   "searchPanelTitle": "ค้นหาขบวน",
-  "destHint": "แสดงขบวนที่ออกจากต้นทางและแวะปลายทาง (ตาราง TDX)",
   "stationPlaceholder": "สถานีต้นทาง เช่น ไทเป",
   "destPlaceholder": "สถานีปลายทาง เช่น ฮualien",
   "directionLabel": "ทิศทางขบวน",

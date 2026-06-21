@@ -1,10 +1,8 @@
 {
   "title": "Hệ thống lên tàu thông minh",
-  "subtitle": "Demo bảng ga thời gian thực (TDX Open Data)",
   "selectStation": "Ga đi",
   "selectDestination": "Ga đến",
   "searchPanelTitle": "Tra cứu chuyến tàu",
-  "destHint": "Hiện các chuyến từ ga đi có dừng tại ga đến (theo TDX)",
   "stationPlaceholder": "Ga đi, ví dụ Taipei",
   "destPlaceholder": "Ga đến, ví dụ Hualien",
   "directionLabel": "Hướng tàu",

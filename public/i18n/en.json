@@ -1,6 +1,5 @@
 {
   "title": "Smart Friendly Boarding System",
-  "subtitle": "Real-time platform guidance demo (powered by TDX Open Data)",
   "serverSettings": "Server (required for mobile app)",
   "serverHint": "Point to PC running node server.js, e.g. http://192.168.0.10:3000 on same Wi‑Fi",
   "serverSave": "Save",
@@ -12,7 +11,6 @@
   "selectStation": "From",
   "selectDestination": "To",
   "searchPanelTitle": "Find your train",
-  "destHint": "Shows live departures from origin that stop at destination (TDX timetable)",
   "stationPlaceholder": "Origin station, e.g. Taipei, 1000",
   "destPlaceholder": "Destination station, e.g. Hualien, 6000",
   "directionLabel": "Direction",
