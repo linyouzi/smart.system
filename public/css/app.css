@@ -142,8 +142,29 @@ body.native-app main {
   }
   .row { flex-direction: column; }
   .row .primary, .row .secondary { width: 100%; }
-  .train-card { grid-template-columns: 1fr; }
+  .train-card {
+    grid-template-columns: 1fr;
+    padding: 14px 12px;
+  }
   .platform-badge { justify-self: start; }
+  .guide-btn {
+    font-size: 14px;
+    padding: 12px 10px;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+  .car-layout {
+    margin-top: 4px;
+    padding-top: 10px;
+  }
+  .car-layout .note {
+    font-size: 12px;
+  }
+  .car {
+    width: 46px;
+    height: 44px;
+    font-size: 13px;
+  }
 }
 
 .hidden { display: none !important; }
@@ -174,6 +195,16 @@ body[data-large="1"] .platform-badge .num { font-size: 36px; }
 body[data-large="1"] button.primary,
 body[data-large="1"] button.secondary,
 body[data-large="1"] .toggle-btn { min-height: 48px; font-size: 16px; }
+body[data-large="1"] .guide-btn {
+  font-size: 16px;
+  min-height: 52px;
+  padding: 14px 12px;
+}
+body[data-large="1"] .car {
+  width: 58px;
+  height: 46px;
+  font-size: 14px;
+}
 
 .row {
   display: flex;
@@ -386,13 +417,21 @@ button.secondary {
   background: var(--ice);
   border: 1px dashed #b6d6e0;
   border-radius: 8px;
-  padding: 8px;
+  padding: 10px 12px;
   text-align: center;
-  font-size: 12.5px;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--teal);
   cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 .guide-btn:hover { background: #dcedf3; }
+.guide-btn:active { background: #dcedf3; }
 
 .car-layout {
   grid-column: 1 / -1;
@@ -400,6 +439,7 @@ button.secondary {
   margin-top: 6px;
   padding-top: 12px;
   border-top: 1px solid #eef3f5;
+  overflow: hidden;
 }
 .car-layout.show { display: block; }
 .car-layout .note {
@@ -407,27 +447,40 @@ button.secondary {
   color: var(--gray);
   margin-bottom: 8px;
   font-style: italic;
+  line-height: 1.5;
 }
 .cars {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  max-width: 100%;
+}
+.cars::-webkit-scrollbar {
+  height: 4px;
+}
+.cars::-webkit-scrollbar-thumb {
+  background: #c7dce3;
+  border-radius: 4px;
 }
 .car {
   flex: 0 0 auto;
   width: 52px;
-  height: 38px;
+  height: 40px;
   border-radius: 6px;
   background: var(--ice);
   border: 1px solid #c7dce3;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--gray);
   font-weight: 600;
   position: relative;
+  scroll-snap-align: start;
 }
 .car.highlight {
   background: var(--amber);
@@ -478,6 +531,17 @@ footer {
 @media (max-width: 480px) {
   .train-card { grid-template-columns: 1fr; }
   .platform-badge { justify-self: start; }
+  .train-card .time { font-size: 20px; }
+  .guide-btn {
+    font-size: 13px;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .cars { gap: 5px; }
+  .car {
+    width: 42px;
+    height: 42px;
+  }
   .alert-card {
     left: 12px;
     right: 12px;
