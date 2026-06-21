@@ -10,7 +10,7 @@ import {
   platformLabel,
   statusIcon,
 } from "./delay-ui.js";
-import { renderAltTransportBlock } from "./alt-transport.js";
+import { renderAltTransportBlock, bindAltTransportBlocks } from "./alt-transport.js";
 import { renderCarLayout } from "./car-layout.js";
 
 let pollTimer = null;
@@ -225,6 +225,8 @@ export function renderResults(
       document.getElementById(`layout-${btn.dataset.idx}`)?.classList.toggle("show");
     });
   });
+
+  bindAltTransportBlocks(resultsEl);
 }
 
 export async function fetchLiveData(originId, destId, apiLang, direction = "all") {

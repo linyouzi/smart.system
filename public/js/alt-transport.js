@@ -195,7 +195,10 @@ function renderTagBadge(tag) {
 }
 
 function renderPlanCard(plan, planNo) {
-  const tagHtml = plan.tags.map(renderTagBadge).join("");
+  const tagHtml =
+    planNo === 1
+      ? `<div class="alt-plan-tags">${plan.tags.map(renderTagBadge).join("")}</div>`
+      : "";
   return `
     <a class="alt-plan-card${planNo === 1 ? " alt-plan-primary" : ""}"
        href="${plan.href}"
@@ -207,13 +210,14 @@ function renderPlanCard(plan, planNo) {
         <span class="alt-plan-title">${plan.title}</span>
         <span class="alt-chevron" aria-hidden="true">›</span>
       </div>
-      <div class="alt-plan-tags">${tagHtml}</div>
+      ${tagHtml}
     </a>
   `;
 }
 
 export function renderAltTransportBlock(context) {
   const plans = buildAltPlans(context);
+  const topPlan = plans[0];
   const cityHint = getCityHint(context.originId);
   const links = buildAltTransportLinks(context);
 
@@ -228,10 +232,40 @@ export function renderAltTransportBlock(context) {
 
   return `
     <div class="alt-transport-block">
-      <div class="alt-block-title">${t("altTransportAction")}</div>
-      <div class="alt-city-hint">${cityHint}</div>
-      <div class="alt-plan-list">${planCards}</div>
-      <div class="alt-chips">${chips}</div>
+      <button type="button" class="alt-toggle-header" aria-expanded="false">
+        <span class="alt-summary-icon" aria-hidden="true">${topPlan?.icon || "🚌"}</span>
+        <span class="alt-summary-text">${t("altSummary", { title: topPlan?.title || "" })}</span>
+        <span class="alt-toggle-action">${t("altExpandBtn")}</span>
+      </button>
+      <div class="alt-transport-body" hidden>
+        <div class="alt-block-title">${t("altTransportAction")}</div>
+        <div class="alt-city-hint">${cityHint}</div>
+        <div class="alt-plan-list">${planCards}</div>
+        <div class="alt-chips">${chips}</div>
+        <button type="button" class="alt-collapse-btn">${t("altCollapseBtn")}</button>
+      </div>
     </div>
   `;
+}
+
+export function bindAltTransportBlocks(container) {
+  if (!container) return;
+  container.querySelectorAll(".alt-transport-block").forEach((block) => {
+    const toggle = block.querySelector(".alt-toggle-header");
+    const body = block.querySelector(".alt-transport-body");
+    const collapseBtn = block.querySelector(".alt-collapse-btn");
+    if (!toggle || !body) return;
+
+    const setOpen = (open) => {
+      block.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", String(open));
+      body.hidden = !open;
+      const action = toggle.querySelector(".alt-toggle-action");
+      if (action) action.textContent = open ? t("altCollapseBtn") : t("altExpandBtn");
+    };
+
+    toggle.addEventListener("click", () => setOpen(!block.classList.contains("is-open")));
+    collapseBtn?.addEventListener("click", () => setOpen(false));
+    setOpen(false);
+  });
 }
