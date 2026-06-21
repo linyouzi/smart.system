@@ -27,12 +27,8 @@ export async function loadLocale(lang) {
     const key = el.dataset.i18nPlaceholder;
     if (dict[key]) el.placeholder = dict[key];
   });
-  ["langZh", "langEn", "langTh", "langVi"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const map = { langZh: "zh-TW", langEn: "en", langTh: "th", langVi: "vi" };
-    el.classList.toggle("active", lang === map[id]);
-  });
+  const langSelect = document.getElementById("langSelect");
+  if (langSelect) langSelect.value = lang;
 }
 
 export function apiLang() {

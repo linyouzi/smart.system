@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#21295c" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="智慧搭乘" />
-<link rel="stylesheet" href="/css/app.css?v=9" />
+<link rel="stylesheet" href="/css/app.css?v=10" />
 </head>
 <body>
 
@@ -29,10 +29,12 @@
 
 <header>
   <div class="lang-switch">
-    <button type="button" id="langZh" data-i18n="langZh">中文</button>
-    <button type="button" id="langEn" data-i18n="langEn">English</button>
-    <button type="button" id="langTh" data-i18n="langTh">ไทย</button>
-    <button type="button" id="langVi" data-i18n="langVi">Tiếng Việt</button>
+    <select id="langSelect" aria-label="Language">
+      <option value="zh-TW" data-i18n="langZh">中文</option>
+      <option value="en" data-i18n="langEn">English</option>
+      <option value="th" data-i18n="langTh">ไทย</option>
+      <option value="vi" data-i18n="langVi">Tiếng Việt</option>
+    </select>
   </div>
   <div class="icon-circle">🚆</div>
   <h1 data-i18n="title">智慧友善搭乘系統</h1>
@@ -109,6 +111,6 @@
   <span data-i18n="footerCredit">2026 軟體專案 </span>
 </footer>
 
-<script type="module" src="/js/app.js?v=9"></script>
+<script type="module" src="/js/app.js?v=10"></script>
 </body>
 </html>

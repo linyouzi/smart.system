@@ -41,10 +41,7 @@ const wheelchairCheck = document.getElementById("wheelchairCheck");
 const wheelchairHint = document.getElementById("wheelchairHint");
 const favBtn = document.getElementById("favBtn");
 const quickLinksEl = document.getElementById("quickLinks");
-const langZh = document.getElementById("langZh");
-const langEn = document.getElementById("langEn");
-const langTh = document.getElementById("langTh");
-const langVi = document.getElementById("langVi");
+const langSelect = document.getElementById("langSelect");
 const dirAll = document.getElementById("dirAll");
 const dirNorth = document.getElementById("dirNorth");
 const dirSouth = document.getElementById("dirSouth");
@@ -218,20 +215,8 @@ async function init() {
     document.body.classList.add("native-app");
   }
 
-  langZh.addEventListener("click", async () => {
-    await loadLocale("zh-TW");
-    renderQuickLinks();
-  });
-  langEn.addEventListener("click", async () => {
-    await loadLocale("en");
-    renderQuickLinks();
-  });
-  langTh.addEventListener("click", async () => {
-    await loadLocale("th");
-    renderQuickLinks();
-  });
-  langVi.addEventListener("click", async () => {
-    await loadLocale("vi");
+  langSelect?.addEventListener("change", async () => {
+    await loadLocale(langSelect.value);
     renderQuickLinks();
   });
 
