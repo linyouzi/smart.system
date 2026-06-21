@@ -24,6 +24,7 @@ import {
   startPolling,
   stopPolling,
   setQueryLabels,
+  formatRouteTitle,
 } from "./liveboard.js";
 import { startQrScan, stopQrScan, showLocationBadge } from "./qr.js";
 
@@ -79,8 +80,12 @@ function setDirection(dir) {
   dirSouth.classList.toggle("active", dir === "south");
 }
 
-function updateResultTitle(routeMode) {
-  resultTitleEl.textContent = routeMode ? t("routeTitle") : t("liveboardTitle");
+function updateResultTitle(originName, destName) {
+  if (originName && destName) {
+    resultTitleEl.textContent = formatRouteTitle(originName, destName);
+  } else {
+    resultTitleEl.textContent = t("routeTitle");
+  }
 }
 
 function renderQuickLinks() {
@@ -152,7 +157,7 @@ async function doSearch() {
     if (originText) {
       setStatus("statusStationNotFound", { name: originText }, true);
     } else {
-      setStatus("statusSelectStation", {}, true);
+      setStatus("statusSelectOrigin", {}, true);
     }
     return;
   }
@@ -161,18 +166,28 @@ async function doSearch() {
   if (destInput.value.trim() && !destId) {
     destId = await resolveStationViaServer(destCombo, destInput, destHidden);
   }
-  if (destInput.value.trim() && !destId) {
-    setStatus("statusStationNotFound", { name: destInput.value.trim() }, true);
+  const destText = destInput.value.trim();
+  if (!destId) {
+    if (destText) {
+      setStatus("statusStationNotFound", { name: destText }, true);
+    } else {
+      setStatus("statusSelectDestination", {}, true);
+    }
     return;
   }
 
-  const trainNoFilter = trainNoInput?.value.trim() || "";
+  if (originId === destId) {
+    setStatus("statusSameStation", {}, true);
+    return;
+  }
+
   const originStation = stations.find((s) => s.stationId === originId);
-  const destStation = destId ? stations.find((s) => s.stationId === destId) : null;
-  setQueryLabels({
-    originName: originStation ? stationLabel(originStation, locale) : originText,
-    destName: destStation ? stationLabel(destStation, locale) : destInput.value.trim(),
-  });
+  const destStation = stations.find((s) => s.stationId === destId);
+  const originLabel = originStation ? stationLabel(originStation, locale) : originText;
+  const destLabel = destStation ? stationLabel(destStation, locale) : destText;
+  setQueryLabels({ originName: originLabel, destName: destLabel });
+
+  const trainNoFilter = trainNoInput?.value.trim() || "";
 
   stopPolling();
   resetSearchState();
@@ -180,24 +195,18 @@ async function doSearch() {
   resultsEl.innerHTML = `<div class="empty-state">${t("loading")}</div>`;
 
   const renderOpts = {
-    routeMode: false,
     trainNoFilter,
-    originName: originStation ? stationLabel(originStation, locale) : originText,
-    destName: destStation ? stationLabel(destStation, locale) : "",
+    originName: originLabel,
+    destName: destLabel,
   };
 
   try {
-    const data = await fetchLiveData(
-      originId,
-      destId || null,
-      apiLang(),
-      travelDirection
-    );
-    updateResultTitle(data.routeMode);
+    const data = await fetchLiveData(originId, destId, apiLang(), travelDirection);
+    updateResultTitle(originLabel, destLabel);
     handleSearchResult(data, {
       resultsEl,
       statusEl,
-      destName: destStation ? stationLabel(destStation, locale) : "",
+      destName: destLabel,
       trainNoFilter,
     });
 
@@ -207,14 +216,12 @@ async function doSearch() {
     wheelchairHint.classList.toggle("hidden", !wheelchairCheck.checked);
 
     startPolling(
-      () =>
-        fetchLiveData(originId, destId || null, apiLang(), travelDirection),
+      () => fetchLiveData(originId, destId, apiLang(), travelDirection),
       (pollData) => {
         renderResults(pollData.trains, resultsEl, {
-          routeMode: pollData.routeMode,
           trainNoFilter,
           originName: renderOpts.originName,
-          destName: renderOpts.destName || pollData.meta?.destName || "",
+          destName: renderOpts.destName,
         });
       }
     );
@@ -380,11 +387,15 @@ async function init() {
     const stationParam = params.get("station");
     const destParam = params.get("dest");
     const zoneParam = params.get("zone");
-    if (stationParam) {
+    if (stationParam && destParam) {
       originCombo.pickById(stationParam);
-      if (destParam) destCombo.pickById(destParam);
+      destCombo.pickById(destParam);
       if (zoneParam) showLocationBadge(zoneParam.toUpperCase());
       doSearch();
+    } else if (stationParam) {
+      originCombo.pickById(stationParam);
+      if (zoneParam) showLocationBadge(zoneParam.toUpperCase());
+      setStatus("statusSelectDestination", {}, true);
     }
   } catch (err) {
     console.error(err);

@@ -1,4 +1,4 @@
-const CACHE = "sfbs-v8";
+const CACHE = "sfbs-v9";
 
 const PRECACHE = ["/manifest.webmanifest", "/icons/icon.svg"];
 

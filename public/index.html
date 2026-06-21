@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#21295c" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="智慧搭乘" />
-<link rel="stylesheet" href="/css/app.css?v=7" />
+<link rel="stylesheet" href="/css/app.css?v=8" />
 </head>
 <body>
 
@@ -42,27 +42,30 @@
 <main>
 
   <section class="panel">
-    <h2><span class="dot"></span><span data-i18n="selectStation">選擇起站</span></h2>
+    <h2><span class="dot"></span><span data-i18n="searchPanelTitle">查詢班次</span></h2>
 
-    <div class="field-label" data-i18n="selectStation">選擇起站</div>
+    <div class="field-label"><span data-i18n="selectStation">出發站</span> <span class="required">*</span></div>
     <div class="row">
       <div class="combobox">
-        <input type="text" id="originInput" autocomplete="off" data-i18n-placeholder="stationPlaceholder" placeholder="輸入站名或站號（如：通霄、2170）" />
+        <input type="text" id="originInput" required autocomplete="off" data-i18n-placeholder="stationPlaceholder" placeholder="輸入站名或站號（如：台北、1000）" />
         <ul id="originSuggestions" class="suggestions hidden"></ul>
         <input type="hidden" id="originId" />
       </div>
-      <button class="primary" id="searchBtn" data-i18n="search">查詢即時看板</button>
-      <button class="secondary" id="favBtn" data-i18n="addFavorite">加入常用</button>
     </div>
 
-    <div class="field-label" data-i18n="selectDestination">我要去哪裡？（選填）</div>
-    <p class="field-hint" data-i18n="destHint">依 TDX 當日時刻表，篩選從起站出發且會停靠此站的列車</p>
+    <div class="field-label"><span data-i18n="selectDestination">抵達站</span> <span class="required">*</span></div>
+    <p class="field-hint" data-i18n="destHint">依 TDX 當日時刻表，顯示從出發站出發且會停靠抵達站的列車</p>
     <div class="row">
       <div class="combobox">
-        <input type="text" id="destInput" autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入目的地（如：花蓮、6000）" />
+        <input type="text" id="destInput" required autocomplete="off" data-i18n-placeholder="destPlaceholder" placeholder="輸入抵達站（如：花蓮、6000）" />
         <ul id="destSuggestions" class="suggestions hidden"></ul>
         <input type="hidden" id="destId" />
       </div>
+    </div>
+
+    <div class="row search-row">
+      <button class="primary" id="searchBtn" data-i18n="search">查詢班次</button>
+      <button class="secondary" id="favBtn" data-i18n="addFavorite">加入常用</button>
     </div>
 
     <div class="field-label" data-i18n="trainNoLabel">車次號碼（選填，高亮我的車次）</div>
@@ -106,7 +109,7 @@
   <section class="panel" id="resultPanel">
     <h2><span class="dot"></span><span id="resultTitle" data-i18n="liveboardTitle">即時到離站看板</span></h2>
     <div id="results">
-      <div class="empty-state" data-i18n="emptyPrompt">請先選擇車站並查詢，即可看到真實的 TDX 即時班次與月台資訊。</div>
+      <div class="empty-state" data-i18n="emptyPrompt">請填寫出發站與抵達站，即可查詢會停靠的即時班次。</div>
     </div>
   </section>
 
@@ -117,6 +120,6 @@
   <span data-i18n="footerCredit">2026 軟體專案 </span>
 </footer>
 
-<script type="module" src="/js/app.js?v=6"></script>
+<script type="module" src="/js/app.js?v=7"></script>
 </body>
 </html>

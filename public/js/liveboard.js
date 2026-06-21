@@ -8,6 +8,8 @@ import {
   reassuranceMessage,
   buildAltTransportLinks,
   platformLabel,
+  statusIcon,
+  primaryAltLink,
 } from "./delay-ui.js";
 import { renderCarLayout } from "./car-layout.js";
 
@@ -64,85 +66,88 @@ export function startPolling(fetchFn, onUpdate) {
   }, 30_000);
 }
 
-function renderDelayBlock(train) {
+function renderDelayBadge(train) {
   const severity = getDelaySeverity(train.delayMin);
-  const estimated = addMinutesToTime(train.scheduledTime, train.delayMin) || train.scheduledTime;
-  const delayDisplay =
-    train.delayMin > 0 ? t("delayPlus", { n: train.delayMin }) : t("onTime");
-
+  if (train.delayMin > 0) {
+    return `
+      <div class="delay-badge severity-${severity}">
+        <span class="delay-badge-num">${train.delayMin}</span>
+        <span class="delay-badge-unit">${t("delayBadgeMin")}</span>
+        <span class="delay-badge-late">${t("delayBadgeLate")}</span>
+      </div>
+    `;
+  }
   return `
-    <div class="delay-hero severity-${severity}">
-      <div class="estimated-label">${t("estimatedDepart")}</div>
-      <div class="estimated-time">${estimated || "--:--"}</div>
-      <div class="delay-big">${delayDisplay}</div>
-      ${
-        train.scheduledTime && train.delayMin > 0
-          ? `<div class="scheduled-was">${t("scheduledWas", { time: train.scheduledTime })}</div>`
-          : ""
-      }
+    <div class="delay-badge severity-${severity}">
+      <span class="delay-badge-ontime">${t("onTimeBadge")}</span>
     </div>
   `;
 }
 
-function renderReassurance(train) {
+function renderStatusBar(train) {
   const severity = getDelaySeverity(train.delayMin);
-  return `<div class="reassurance severity-${severity}">${reassuranceMessage(train)}</div>`;
+  return `
+    <div class="status-bar severity-${severity}">
+      <span class="status-icon" aria-hidden="true">${statusIcon(severity)}</span>
+      <span class="status-text">${reassuranceMessage(train)}</span>
+    </div>
+  `;
 }
 
-function renderAltTransport(train, context) {
+function renderAltSuggest(train, context) {
   if (getDelaySeverity(train.delayMin) !== "severe") return "";
-  const links = buildAltTransportLinks({
-    originName: context.originName,
-    destName: context.destName,
-  });
-  const items = links
+  const alt = primaryAltLink(context);
+  const links = buildAltTransportLinks(context);
+  const chips = links
     .map(
       (l) =>
-        `<a class="alt-link" href="${l.href}" target="_blank" rel="noopener noreferrer">${t(l.key)}</a>`
+        `<a class="alt-chip" href="${l.href}" target="_blank" rel="noopener noreferrer">${t(l.key)}</a>`
     )
     .join("");
+
   return `
-    <div class="alt-transport">
-      <div class="alt-title">${t("altTransportTitle")}</div>
-      <div class="alt-links">${items}</div>
-    </div>
+    <a class="alt-suggest" href="${alt.href}" target="_blank" rel="noopener noreferrer">
+      <span class="alt-suggest-icon" aria-hidden="true">🚌</span>
+      <span class="alt-suggest-text">${t("altSuggestion", { origin: context.originName, dest: context.destName })}</span>
+      <span class="alt-chevron" aria-hidden="true">›</span>
+    </a>
+    <div class="alt-chips">${chips}</div>
   `;
 }
 
-function renderTrainCard(train, idx, { hero = false, highlighted = false, context = {} } = {}) {
+function renderTrainCard(train, idx, { highlighted = false, context = {} } = {}) {
   const severity = getDelaySeverity(train.delayMin);
-  const dirBadge =
-    train.directionLabel
-      ? `<span class="dir-badge dir-${train.directionType}">${train.directionLabel}</span>`
-      : "";
-
-  const cardClasses = ["train-card", `severity-border-${severity}`];
-  if (hero) cardClasses.push("hero-card");
+  const estimated = addMinutesToTime(train.scheduledTime, train.delayMin) || train.scheduledTime;
+  const platform = platformLabel(train.platform);
+  const cardClasses = ["train-card", `card-${severity}`];
   if (highlighted) cardClasses.push("highlighted");
 
   return `
     <div class="${cardClasses.join(" ")}" data-train-no="${train.trainNo}">
-      ${hero ? `<div class="hero-label">${t("heroTitle")}</div>` : ""}
-      ${renderReassurance(train)}
-      ${renderDelayBlock(train)}
-      <div class="card-body">
-        <div class="left">
-          <div class="meta-row">
-            ${dirBadge}
-            <span class="meta">${t("trainMeta", {
-              no: train.trainNo,
-              type: train.trainTypeName || "",
-              dest: train.endingStation || "",
-            })}</span>
+      <div class="card-main">
+        ${renderDelayBadge(train)}
+        <div class="card-content">
+          <div class="route-line">${t("routeLine", {
+            origin: context.originName || "—",
+            dest: context.destName || train.endingStation || "—",
+          })}</div>
+          <div class="train-platform">${t("trainPlatformLine", {
+            no: train.trainNo,
+            platform,
+          })}</div>
+          <div class="time-line">
+            <span class="est-time">${t("estimatedAt", { time: estimated || "--:--" })}</span>
+            ${
+              train.scheduledTime && train.delayMin > 0
+                ? `<span class="sched-time">${train.scheduledTime}</span>`
+                : ""
+            }
           </div>
         </div>
-        <div class="platform-badge severity-${severity}">
-          <div class="num">${platformLabel(train.platform)}</div>
-          <div class="label">${t("platform")}</div>
-        </div>
       </div>
-      ${renderAltTransport(train, context)}
-      <div class="guide-btn" data-idx="${idx}">${t("guideBtn")}</div>
+      ${renderStatusBar(train)}
+      ${renderAltSuggest(train, context)}
+      <button type="button" class="guide-btn" data-idx="${idx}">${t("guideBtn")}</button>
       <div class="car-layout" id="layout-${idx}">
         <div class="note">${t("carNote")}</div>
         ${renderCarLayout(train.trainNo)}
@@ -151,7 +156,7 @@ function renderTrainCard(train, idx, { hero = false, highlighted = false, contex
   `;
 }
 
-function sortTrainsForDisplay(trains, { trainNoFilter = "", routeMode = false } = {}) {
+function sortTrainsForDisplay(trains, { trainNoFilter = "" } = {}) {
   const list = [...trains];
   if (trainNoFilter) {
     const needle = String(trainNoFilter).trim();
@@ -168,58 +173,39 @@ function sortTrainsForDisplay(trains, { trainNoFilter = "", routeMode = false } 
 export function renderResults(
   trains,
   resultsEl,
-  { routeMode = false, trainNoFilter = "", originName = "", destName = "" } = {}
+  { trainNoFilter = "", originName = "", destName = "" } = {}
 ) {
   if (!trains.length) {
-    resultsEl.innerHTML = `<div class="empty-state">${
-      routeMode ? t("emptyRoute") : t("emptyLive")
-    }</div>`;
+    resultsEl.innerHTML = `<div class="empty-state">${t("emptyRoute")}</div>`;
     return;
   }
 
   const context = { originName, destName };
-  const sorted = sortTrainsForDisplay(trains, { trainNoFilter, routeMode });
+  const sorted = sortTrainsForDisplay(trains, { trainNoFilter });
   const needle = String(trainNoFilter || "").trim();
-  const showHero = routeMode || needle;
-  const heroTrain = sorted[0];
-  const restTrains = showHero ? sorted.slice(1, 12) : sorted.slice(0, 12);
 
-  let html = "";
-  if (showHero && heroTrain) {
-    html += renderTrainCard(heroTrain, 0, {
-      hero: true,
-      highlighted: needle && String(heroTrain.trainNo) === needle,
-      context,
-    });
-    if (restTrains.length) {
-      html += `<div class="section-divider">${t("otherTrains")}</div>`;
-    }
-  }
-
-  restTrains.forEach((train, i) => {
-    const idx = showHero ? i + 1 : i;
-    html += renderTrainCard(train, idx, {
-      highlighted: needle && String(train.trainNo) === needle,
-      context,
-    });
-  });
-
-  resultsEl.innerHTML = html;
+  resultsEl.innerHTML = sorted
+    .slice(0, 12)
+    .map((train, idx) =>
+      renderTrainCard(train, idx, {
+        highlighted: needle && String(train.trainNo) === needle,
+        context,
+      })
+    )
+    .join("");
 
   resultsEl.querySelectorAll(".guide-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const idx = btn.dataset.idx;
-      document.getElementById(`layout-${idx}`).classList.toggle("show");
+      document.getElementById(`layout-${btn.dataset.idx}`)?.classList.toggle("show");
     });
   });
 }
 
 export async function fetchLiveData(originId, destId, apiLang, direction = "all") {
   currentOriginId = originId;
-  currentDestId = destId || null;
+  currentDestId = destId;
 
-  const params = new URLSearchParams({ lang: apiLang, direction });
-  if (destId) params.set("destId", destId);
+  const params = new URLSearchParams({ lang: apiLang, direction, destId });
 
   const res = await apiFetch(`/api/search/${originId}?${params.toString()}`);
   const data = await res.json();
@@ -237,27 +223,24 @@ export function setQueryLabels({ originName = "", destName = "" } = {}) {
   currentDestName = destName;
 }
 
+export function formatRouteTitle(originName, destName) {
+  return t("routeLine", { origin: originName, dest: destName });
+}
+
 export function handleSearchResult(data, { resultsEl, statusEl, destName, trainNoFilter = "", onFirstSpeak }) {
-  const { trains, routeMode, meta } = data;
+  const { trains, meta } = data;
+  const dest = destName || meta.destName || currentDestName;
+
   renderResults(trains, resultsEl, {
-    routeMode,
     trainNoFilter,
     originName: currentOriginName,
-    destName: destName || meta.destName || currentDestName,
+    destName: dest,
   });
 
-  if (routeMode) {
-    statusEl.textContent = `${t("statusRouteUpdated", {
-      n: meta.matched,
-      dest: destName || meta.destName || "",
-    })} · ${t("statusPoll")}`;
-  } else {
-    const dirNote =
-      meta.direction && meta.direction !== "all"
-        ? ` · ${meta.direction === "north" ? t("dirNorth") : t("dirSouth")}`
-        : "";
-    statusEl.textContent = `${t("statusUpdated", { n: trains.length })}${dirNote} · ${t("statusPoll")}`;
-  }
+  statusEl.textContent = `${t("statusRouteUpdated", {
+    n: meta.matched ?? trains.length,
+    dest,
+  })} · ${t("statusPoll")}`;
   statusEl.classList.remove("error");
 
   if (isFirstLoad) {

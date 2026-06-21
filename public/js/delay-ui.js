@@ -47,6 +47,12 @@ export function reassuranceMessage(train) {
   return t("reassuranceSevere");
 }
 
+export function statusIcon(severity) {
+  if (severity === "ok") return "✓";
+  if (severity === "moderate") return "◷";
+  return "⚠";
+}
+
 const ALT_LINKS = {
   thsr: "https://www.thsr.com.tw/",
   bus: "https://www.highway.gov.tw/",
@@ -67,4 +73,9 @@ export function buildAltTransportLinks({ originName = "", destName = "" } = {}) 
     { key: "altBus", href: ALT_LINKS.bus },
     { key: "altTour", href: ALT_LINKS.tour },
   ];
+}
+
+export function primaryAltLink(context) {
+  const links = buildAltTransportLinks(context);
+  return links[1] || links[0];
 }
