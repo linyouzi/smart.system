@@ -135,6 +135,10 @@ function renderTrainCard(train, idx, { highlighted = false, context = {} } = {})
       ? `<span class="live-tag live">${t("liveTag")}</span>`
       : `<span class="live-tag schedule">${t("scheduleTag")}</span>`;
 
+  const dirBadge = train.directionLabel
+    ? `<span class="dir-badge dir-${train.directionType || "unknown"}">${train.directionLabel}</span>`
+    : "";
+
   return `
     <div class="${cardClasses.join(" ")}" data-train-no="${train.trainNo}">
       <div class="card-main">
@@ -143,7 +147,7 @@ function renderTrainCard(train, idx, { highlighted = false, context = {} } = {})
           <div class="route-line">${t("routeLine", {
             origin: context.originName || "—",
             dest: context.destName || train.endingStation || "—",
-          })} ${liveTag}</div>
+          })} ${dirBadge} ${liveTag}</div>
           <div class="train-platform">${t("trainPlatformLine", {
             no: train.trainNo,
             platform,

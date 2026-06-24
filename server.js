@@ -253,12 +253,12 @@ function normalizeStationName(name) {
 }
 
 function getDirectionMeta(directionVal) {
-  // TRA TDX LiveBoard：0 = 順行（南下），1 = 逆行（北上）
+  // TRA TDX LiveBoard：0 = 順行（北上），1 = 逆行（南下）
   if (directionVal === 0) {
-    return { type: "south", labelZh: "南下", labelEn: "Southbound" };
+    return { type: "north", labelZh: "北上", labelEn: "Northbound" };
   }
   if (directionVal === 1) {
-    return { type: "north", labelZh: "北上", labelEn: "Northbound" };
+    return { type: "south", labelZh: "南下", labelEn: "Southbound" };
   }
   return { type: "unknown", labelZh: "", labelEn: "" };
 }
